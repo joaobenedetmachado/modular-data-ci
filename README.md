@@ -1,1 +1,95 @@
 # modular-data-ci
+
+Configuration-driven data quality checks for CI. Define reusable checks in YAML, run them locally with a CLI, and run the exact same checks in GitHub Actions.
+
+> **Status:** early development, working toward **v0.1.0**. The usage shown below is the planned interface and is not implemented yet. Progress is tracked in [PROJECT_PLAN.md](PROJECT_PLAN.md).
+
+## Why
+
+Data pipelines break quietly: a column changes type, a table stops updating, a daily total drifts. Modular Data CI makes those checks part of your CI, so a pull request fails when the data it depends on no longer meets the rules you defined.
+
+It is focused on validation. It is not an orchestrator, a cloud service, or a dashboard.
+
+## How it works
+
+```
+YAML config ──> Configuration Layer ──> Module Registry ──> Execution Engine ──> Reporting
+                (Pydantic validation)    (resolve modules)   (run, collect)      (terminal + JSON)
+```
+
+The CLI and the GitHub Actions integration share one execution engine, so local runs and CI runs behave the same.
+
+## Planned modules (v0.1.0)
+
+| Module | What it checks |
+|---|---|
+| `schema` | Columns, types, required fields, structural consistency |
+| `aggregation` | Aggregates over configurable periods, compared with operators, expected values and tolerances |
+| `freshness` | The dataset was updated within an expected time window |
+| `custom_sql` | User-defined SQL whose result is evaluated against a condition |
+
+## Planned usage
+
+Example config (`modular-data-ci.yml`):
+
+```yaml
+connection:
+  type: duckdb
+  path: data/warehouse.duckdb
+
+checks:
+  - name: orders_schema
+    module: schema
+    table: orders
+    columns:
+      order_id: { type: integer, required: true }
+      amount: { type: double, required: true }
+      created_at: { type: timestamp }
+
+  - name: orders_fresh
+    module: freshness
+    table: orders
+    timestamp_column: created_at
+    max_age: 24h
+
+  - name: daily_revenue_positive
+    module: custom_sql
+    enabled: true
+    sql: SELECT SUM(amount) FROM orders WHERE created_at >= CURRENT_DATE
+    condition: "> 0"
+```
+
+Run locally:
+
+```bash
+pip install modular-data-ci
+modular-data-ci run --config modular-data-ci.yml --report report.json
+```
+
+The command prints a readable summary, writes a JSON report, and exits non-zero when a required check fails, which is what makes CI fail.
+
+In GitHub Actions:
+
+```yaml
+- uses: actions/setup-python@v5
+  with:
+    python-version: "3.12"
+- run: pip install modular-data-ci
+- run: modular-data-ci run --config modular-data-ci.yml --report report.json
+```
+
+## Result statuses
+
+Every check returns one of: `success`, `failure`, `skipped`, `error`.
+
+## Tech stack
+
+Python, YAML + Pydantic, DuckDB, SQLAlchemy, Pytest, Ruff, GitHub Actions.
+
+## Roadmap
+
+See [PROJECT_PLAN.md](PROJECT_PLAN.md) for the 7-day MVP plan, scope boundaries and future ideas (more modules, Airflow and Databricks integrations).
+
+## License
+
+To be defined.
