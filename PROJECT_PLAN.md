@@ -66,11 +66,11 @@ The CLI and CI integration must use the same execution engine. The goal is focus
 
 ### Day 4: Core Validation Modules
 
-- [ ] Implement schema validation.
-- [ ] Implement aggregation validation, including configurable periods and tolerances.
-- [ ] Implement freshness validation.
-- [ ] Implement custom SQL validation.
-- [ ] Create sample datasets and module-level tests.
+- [x] Implement schema validation.
+- [x] Implement aggregation validation, including configurable periods and tolerances.
+- [x] Implement freshness validation.
+- [x] Implement custom SQL validation.
+- [x] Create sample datasets and module-level tests.
 
 **Deliverable:** four working validation modules.
 

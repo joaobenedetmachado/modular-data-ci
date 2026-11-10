@@ -11,7 +11,7 @@
 
 Configuration-driven data quality checks for CI. Define reusable checks in YAML, run them locally with a CLI, and run the exact same checks in GitHub Actions.
 
-> **Status:** early development, working toward **v0.1.0**. The usage shown below is the planned interface and is not implemented yet. Progress is tracked in [PROJECT_PLAN.md](PROJECT_PLAN.md).
+> **Status:** early development, working toward **v0.1.0**. The engine and the four modules work; the `run` command and the GitHub Actions integration are next, and the package is not on PyPI yet. Progress is tracked in [PROJECT_PLAN.md](PROJECT_PLAN.md).
 
 ## Why
 
@@ -28,7 +28,7 @@ YAML config ──> Configuration Layer ──> Module Registry ──> Executio
 
 The CLI and the GitHub Actions integration share one execution engine, so local runs and CI runs behave the same.
 
-## Planned modules (v0.1.0)
+## Modules
 
 | Module | What it checks |
 |---|---|
@@ -133,6 +133,9 @@ See [docs/architecture.md](docs/architecture.md) for the layers and module contr
 uv sync
 uv run pytest
 uv run ruff check . && uv run ruff format --check .
+
+# sample database for examples/modular-data-ci.yml (add --broken to see failures)
+uv run python examples/make_sample_db.py
 ```
 
 ## Tech stack

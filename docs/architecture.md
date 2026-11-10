@@ -47,7 +47,8 @@ modular-data-ci.yml
 | `registry.py` | `ModuleRegistry` (built-ins, entry-point plugins), `resolve_checks` | Day 3 |
 | `engine.py` | `Engine.run()`: resolve, plan, open source, run in order, build `RunReport` | Day 3 |
 | `modules/base.py` | `ValidationModule`, `ModuleParams`, `ExecutionContext` | Day 1 |
-| `modules/<name>.py` | Params models now, module classes on Day 4 | Day 1 / Day 4 |
+| `modules/<name>.py` | Built-in modules: `schema`, `aggregation`, `freshness`, `custom_sql` | Day 4 |
+| `modules/_sql.py` | Shared SQL helpers (WHERE building, timestamp params, number/time conversion) | Day 4 |
 | `cli.py` | Entry point (`--version` today, `run` on Day 5) | Day 1 / Day 5 |
 
 ## Contracts
@@ -126,7 +127,6 @@ The entry point name must equal the module's `name`. Name clashes with built-in 
 
 ## Open items for the next days
 
-- Day 4: the four built-in modules, registered in `registry._builtin_modules()`.
 - Day 5: CLI `run` wiring `--only`, `--skip`, `--module`, terminal and JSON reporters.
 
 Full configuration reference: [configuration.md](configuration.md).

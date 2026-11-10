@@ -49,7 +49,7 @@ Each check is a mapping. These keys are common to every module:
 | `description` | none | Free text shown in reports |
 | `when` | none | Execution conditions, see below |
 
-Every other key belongs to the module. Module params are documented with each module (Day 4).
+Every other key belongs to the module. See [Modules](#modules) below.
 
 ### `when`: execution conditions
 
@@ -69,6 +69,77 @@ when:
 | `env` | Values are compared as strings. YAML `true`/`false` match the strings `"true"`/`"false"`. An unset variable never matches |
 | `depends_on` | A name or a list of names. Dependencies must be declared **above** the check, so the run order is always the file order and cycles are impossible. A dependency that was skipped, failed, errored, or was filtered out of the run skips the dependent check |
 | `sql` | Evaluated last, only if `env` and `depends_on` hold. `NULL` or no rows counts as false. A non-boolean, non-numeric result is reported as `error` |
+
+## Modules
+
+Table and column names are quoted for the target database, so `schema.table`, mixed case and reserved words work. Timestamp columns are assumed to hold UTC.
+
+### `schema`
+
+| Key | Default | Meaning |
+|---|---|---|
+| `table` | required | Table name, optionally `schema.table` |
+| `columns` | required | Mapping of column name to spec (below). Names match case-insensitively |
+| `allow_extra_columns` | `true` | `false` fails when the table has columns not listed |
+
+Column spec: `type` (optional), `required` (default `true`: the column must exist), `nullable` (default `true`; `false` counts NULL values and fails if any).
+
+Types compare case-insensitively with common synonyms: `int`/`integer`/`int4`, `bigint`/`int8`, `double`/`float8`/`double precision`, `varchar`/`text`/`string`, `boolean`/`bool`, `timestamp`/`datetime`, `decimal`/`numeric`. Without parentheses the size is ignored (`varchar` matches `VARCHAR(255)`); with parentheses it must match exactly (`decimal(18,2)`).
+
+A missing table is a `failure`.
+
+```yaml
+- name: orders_schema
+  module: schema
+  table: orders
+  columns:
+    order_id: { type: integer, nullable: false }
+    coupon_code: { type: varchar, required: false }
+  allow_extra_columns: false
+```
+
+### `freshness`
+
+| Key | Default | Meaning |
+|---|---|---|
+| `table` | required | |
+| `timestamp_column` | required | |
+| `max_age` | required | Duration: `90s`, `30m`, `24h`, `7d`, `2w`, or seconds |
+| `where` | none | SQL filter applied before taking the newest timestamp |
+
+Fails when the newest timestamp is older than `max_age` relative to the run's start, or when there are no rows.
+
+### `aggregation`
+
+| Key | Default | Meaning |
+|---|---|---|
+| `table` | required | |
+| `function` | required | `count`, `count_distinct`, `sum`, `avg`, `min`, `max` |
+| `column` | none | Required for every function except `count` (`count` without a column is `COUNT(*)`) |
+| `where` | none | SQL filter |
+| `period` | none | `{column, window}`: only rows in `[now - window, now)` |
+| `condition` | | Compare the aggregate with a value: `"> 0"` or `{operator, value, tolerance}` |
+| `compare_to_previous` | | `{max_relative_change}`: compare with the window before (`[now - 2*window, now - window)`). Needs `period` |
+
+Exactly one of `condition` or `compare_to_previous`. A NULL aggregate (no matching rows) fails a `condition`. With `compare_to_previous`, NULL counts as 0; 0 in both periods passes, 0 then non-zero fails (the relative change is undefined).
+
+Tolerance: `absolute` (same unit as the value) and/or `relative` (fraction of the value); the larger allowance wins. `{operator: "==", value: 1000, tolerance: {relative: 0.05}}` accepts 950 to 1050.
+
+### `custom_sql`
+
+| Key | Meaning |
+|---|---|
+| `sql` | Query returning exactly one row with one numeric or boolean column |
+| `condition` | Same as aggregation |
+
+No rows or NULL is a `failure`. More than one row or column, or a non-numeric value, is an `error`. Booleans count as 1 and 0.
+
+```yaml
+- name: no_negative_amounts
+  module: custom_sql
+  sql: SELECT COUNT(*) FROM orders WHERE amount < 0
+  condition: "== 0"
+```
 
 ## Environment variables
 
