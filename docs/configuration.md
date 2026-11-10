@@ -15,8 +15,8 @@ Unknown keys are rejected everywhere, so typos fail loudly instead of being igno
 
 | Type | Keys |
 |---|---|
-| `duckdb` | `path` (default `:memory:`), `read_only` (default `false`) |
-| `sqlalchemy` | `url` (required). Needs `pip install modular-data-ci[sqlalchemy]` |
+| `duckdb` | `path` (default `:memory:`), `read_only` (default `false`). Relative paths are relative to the working directory. A missing file is an error (DuckDB would otherwise create an empty database) |
+| `sqlalchemy` | `url` (required). Needs `pip install modular-data-ci[sqlalchemy]` plus the database driver. Passwords are hidden in connection error messages |
 
 ```yaml
 connection:

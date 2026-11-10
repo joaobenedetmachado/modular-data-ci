@@ -41,7 +41,11 @@ modular-data-ci.yml
 | `conditions.py` | `Condition` and `Tolerance`, shared numeric comparisons | Day 1 |
 | `results.py` | `CheckStatus`, `CheckOutcome`, `CheckResult`, `RunReport`, exit codes | Day 1 |
 | `errors.py` | `ConfigError`, `SelectionError` (shown without traceback) | Day 2 |
-| `connections/base.py` | `DataSource` protocol, `ColumnInfo` | Day 1 (contract only) |
+| `connections/base.py` | `DataSource` protocol (`query`, `scalar`, `columns`, `quote`, `placeholder`), `ColumnInfo` | Day 1 / Day 3 |
+| `connections/duckdb_source.py` | DuckDB data source | Day 3 |
+| `connections/sqlalchemy_source.py` | SQLAlchemy data source (optional extra) | Day 3 |
+| `registry.py` | `ModuleRegistry` (built-ins, entry-point plugins), `resolve_checks` | Day 3 |
+| `engine.py` | `Engine.run()`: resolve, plan, open source, run in order, build `RunReport` | Day 3 |
 | `modules/base.py` | `ValidationModule`, `ModuleParams`, `ExecutionContext` | Day 1 |
 | `modules/<name>.py` | Params models now, module classes on Day 4 | Day 1 / Day 4 |
 | `cli.py` | Entry point (`--version` today, `run` on Day 5) | Day 1 / Day 5 |
@@ -69,7 +73,7 @@ A module only decides whether the data meets the expectation and explains why. I
 
 ### Data source
 
-Modules access data only through the `DataSource` protocol (`query`, `scalar`, `columns`, `close`). DuckDB and SQLAlchemy implementations plug in behind it, and tests use a fake.
+Modules access data only through the `DataSource` protocol (`query`, `scalar`, `columns`, `quote`, `placeholder`, `close`). DuckDB and SQLAlchemy implementations plug in behind it, and tests use a fake. Backends differ in bind-parameter syntax (`$name` vs `:name`) and identifier quoting, so modules build SQL with `quote()` for names and `placeholder()` for values instead of hard-coding either.
 
 ### Results
 
@@ -100,9 +104,29 @@ Aggregation and custom SQL compare a number with a `Condition`: an operator (`==
 - **`required: false`** lets teams add warning-only checks without breaking CI.
 - **Few dependencies:** pydantic, pyyaml and duckdb are core; SQLAlchemy is an optional extra (`pip install modular-data-ci[sqlalchemy]`).
 
+## Engine guarantees
+
+- Every check is resolved (module found, params valid) before anything runs, including disabled checks. Problems raise `ConfigError` (exit code 2) and the data source is never opened.
+- The data source is opened only if at least one check will run, and is always closed.
+- Checks run in file order. A failing, erroring or raising check never stops the run.
+- If the data source cannot be opened, every check that would run is reported as `error`, so the JSON report is still produced.
+- Module `details` are converted to JSON-safe values (datetimes to ISO strings, `Decimal` to strings, unknown objects to `str`).
+- Every check in a run sees the same reference time (`ExecutionContext.now`).
+
+## Plugins
+
+Third-party packages can add modules without changes to this repository:
+
+```toml
+[project.entry-points."modular_data_ci.modules"]
+row_count = "my_package.checks:RowCountModule"
+```
+
+The entry point name must equal the module's `name`. Name clashes with built-in modules are rejected.
+
 ## Open items for the next days
 
-- Day 3: module registry (and validating each check's params at load time), engine that runs the plan in file order and evaluates `when`, DuckDB/SQLAlchemy data sources.
-- Day 5: wire `--only`, `--skip`, `--module` to `plan_checks`.
+- Day 4: the four built-in modules, registered in `registry._builtin_modules()`.
+- Day 5: CLI `run` wiring `--only`, `--skip`, `--module`, terminal and JSON reporters.
 
 Full configuration reference: [configuration.md](configuration.md).
