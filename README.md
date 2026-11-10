@@ -1,5 +1,14 @@
 # modular-data-ci
 
+[![CI](https://github.com/joaobenedetmachado/modular-data-ci/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/joaobenedetmachado/modular-data-ci/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/python-3.10%20%7C%203.12%20%7C%203.14-3776AB?logo=python&logoColor=white)](pyproject.toml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Status](https://img.shields.io/badge/status-pre--alpha-orange)](PROJECT_PLAN.md)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
+[![DuckDB](https://img.shields.io/badge/DuckDB-FFF000?logo=duckdb&logoColor=black)](https://duckdb.org)
+[![Pydantic v2](https://img.shields.io/badge/pydantic-v2-E92063?logo=pydantic&logoColor=white)](https://docs.pydantic.dev)
+
 Configuration-driven data quality checks for CI. Define reusable checks in YAML, run them locally with a CLI, and run the exact same checks in GitHub Actions.
 
 > **Status:** early development, working toward **v0.1.0**. The usage shown below is the planned interface and is not implemented yet. Progress is tracked in [PROJECT_PLAN.md](PROJECT_PLAN.md).
