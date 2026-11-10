@@ -31,3 +31,11 @@ class ConfigError(ModularDataCIError):
 
 class SelectionError(ModularDataCIError):
     """A check selection (``--only``, ``--skip``, ``--module``) refers to unknown names."""
+
+
+class DataSourceError(ModularDataCIError):
+    """The configured data source cannot be opened."""
+
+
+class RegistryError(ModularDataCIError):
+    """A validation module cannot be registered or loaded."""

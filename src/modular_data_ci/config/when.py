@@ -18,12 +18,14 @@ import re
 from collections.abc import Mapping
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from modular_data_ci.connections.base import DataSource
 from modular_data_ci.results import CheckStatus
+
+if TYPE_CHECKING:
+    from modular_data_ci.connections.base import DataSource
 
 ENV_NAME_PATTERN = r"^[A-Za-z_][A-Za-z0-9_]*$"
 

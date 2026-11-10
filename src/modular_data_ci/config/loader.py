@@ -153,11 +153,16 @@ def _join(path: str, key: str) -> str:
 # --- validation errors ------------------------------------------------------
 
 
-def format_validation_error(exc: ValidationError, raw: Any) -> list[str]:
-    """One readable line per Pydantic error, with check names instead of bare indexes."""
+def format_validation_error(exc: ValidationError, raw: Any, *, prefix: str = "") -> list[str]:
+    """One readable line per Pydantic error, with check names instead of bare indexes.
+
+    ``prefix`` is prepended to every location, e.g. ``checks[2] (orders_fresh)``.
+    """
     lines = []
     for error in exc.errors(include_url=False):
         location = _format_location(error["loc"], raw)
+        if prefix:
+            location = f"{prefix}.{location}" if location else prefix
         message = _format_message(error)
         lines.append(f"{location}: {message}" if location else message)
     return lines

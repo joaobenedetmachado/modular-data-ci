@@ -1,4 +1,3 @@
-from collections.abc import Sequence
 from decimal import Decimal
 from typing import Any
 
@@ -6,28 +5,9 @@ import pytest
 from pydantic import ValidationError
 
 from modular_data_ci.config import WhenConfig, evaluate_when, parse_config
-from modular_data_ci.connections import ColumnInfo
 from modular_data_ci.errors import ConfigError
 from modular_data_ci.results import CheckStatus
-
-
-class ScalarSource:
-    def __init__(self, value: Any) -> None:
-        self.value = value
-        self.calls = 0
-
-    def query(self, sql: str, parameters: Sequence[Any] | None = None) -> list[tuple[Any, ...]]:
-        return [(self.value,)]
-
-    def scalar(self, sql: str, parameters: Sequence[Any] | None = None) -> Any:
-        self.calls += 1
-        return self.value
-
-    def columns(self, table: str) -> list[ColumnInfo]:
-        return []
-
-    def close(self) -> None:
-        pass
+from tests.fakes import FakeSource as ScalarSource
 
 
 def _when(**data: Any) -> WhenConfig:
@@ -118,7 +98,7 @@ def test_cheap_conditions_short_circuit_sql():
     source = ScalarSource(True)
     when = _when(env={"TARGET": "prod"}, sql="SELECT 1")
     assert not _evaluate(when, env={"TARGET": "dev"}, source=source).run
-    assert source.calls == 0
+    assert source.queries == []
 
 
 def test_all_conditions_must_hold():

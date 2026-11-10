@@ -1,6 +1,5 @@
 """Shows that a module can be written against the contract alone."""
 
-from collections.abc import Sequence
 from datetime import datetime, timezone
 from typing import Any
 
@@ -8,28 +7,10 @@ import pytest
 from pydantic import ValidationError
 
 from modular_data_ci.conditions import Condition
-from modular_data_ci.connections import ColumnInfo, DataSource
+from modular_data_ci.connections import DataSource
 from modular_data_ci.modules import ExecutionContext, ModuleParams, ValidationModule
 from modular_data_ci.results import CheckOutcome, CheckStatus
-
-
-class FakeSource:
-    def __init__(self, value: Any) -> None:
-        self.value = value
-        self.queries: list[str] = []
-
-    def query(self, sql: str, parameters: Sequence[Any] | None = None) -> list[tuple[Any, ...]]:
-        self.queries.append(sql)
-        return [(self.value,)]
-
-    def scalar(self, sql: str, parameters: Sequence[Any] | None = None) -> Any:
-        return self.query(sql, parameters)[0][0]
-
-    def columns(self, table: str) -> list[ColumnInfo]:
-        return []
-
-    def close(self) -> None:
-        pass
+from tests.fakes import FakeSource
 
 
 class RowCountParams(ModuleParams):

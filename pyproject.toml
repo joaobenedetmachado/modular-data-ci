@@ -38,6 +38,7 @@ modular-data-ci = "modular_data_ci.cli:main"
 dev = [
     "pytest>=8.0",
     "ruff>=0.6",
+    "sqlalchemy>=2.0",
 ]
 
 [build-system]
