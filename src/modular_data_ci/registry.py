@@ -110,8 +110,12 @@ class ModuleRegistry:
 
 
 def _builtin_modules() -> list[type[ValidationModule[Any]]]:
-    # The four core modules are added on Day 4.
-    return []
+    from modular_data_ci.modules.aggregation import AggregationModule
+    from modular_data_ci.modules.custom_sql import CustomSqlModule
+    from modular_data_ci.modules.freshness import FreshnessModule
+    from modular_data_ci.modules.schema import SchemaModule
+
+    return [SchemaModule, AggregationModule, FreshnessModule, CustomSqlModule]
 
 
 # --- resolution -------------------------------------------------------------
