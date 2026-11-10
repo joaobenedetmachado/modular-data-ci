@@ -46,11 +46,11 @@ The CLI and CI integration must use the same execution engine. The goal is focus
 
 ### Day 2: Configuration Engine
 
-- [ ] Implement YAML loading and parsing.
-- [ ] Validate configuration schema and invalid settings.
-- [ ] Support enabling and disabling modules.
-- [ ] Define optional execution conditions.
-- [ ] Add configuration tests and sample YAML.
+- [x] Implement YAML loading and parsing.
+- [x] Validate configuration schema and invalid settings.
+- [x] Support enabling and disabling modules.
+- [x] Define optional execution conditions.
+- [x] Add configuration tests and sample YAML.
 
 **Deliverable:** validated configuration ready for execution.
 

@@ -75,7 +75,32 @@ checks:
     compare_to_previous: { max_relative_change: 0.3 }
 ```
 
-Every check accepts `name`, `module`, `enabled` (default `true`), `required` (default `true`) and `description`. All other keys belong to the module.
+Every check accepts `name`, `module`, `enabled` (default `true`), `required` (default `true`), `description` and `when`. All other keys belong to the module.
+
+Checks can run conditionally, and any value can come from the environment:
+
+```yaml
+connection:
+  type: sqlalchemy
+  url: ${DATABASE_URL}              # secrets stay out of the file
+
+modules:
+  aggregation:
+    enabled: ${RUN_AGGREGATIONS:-true}
+
+checks:
+  - name: orders_fresh
+    module: freshness
+    table: orders
+    timestamp_column: created_at
+    max_age: 24h
+    when:
+      env: { GITHUB_REF_NAME: main }   # only on main
+      depends_on: orders_schema        # only if the schema check passed
+      sql: SELECT COUNT(*) > 0 FROM orders
+```
+
+Full reference: [docs/configuration.md](docs/configuration.md). Complete example: [examples/modular-data-ci.yml](examples/modular-data-ci.yml).
 
 Run locally:
 

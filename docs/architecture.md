@@ -33,10 +33,14 @@ modular-data-ci.yml
 
 | Path | Responsibility | Status |
 |---|---|---|
-| `config/models.py` | Top-level `Config`, `CheckConfig`, connection configs | Day 1 |
+| `config/models.py` | Top-level `Config`, `CheckConfig`, `ModuleSettings`, connection configs | Day 1 / Day 2 |
+| `config/loader.py` | YAML loading, env interpolation, readable errors | Day 2 |
+| `config/when.py` | `when` conditions (env, depends_on, sql) and their evaluation | Day 2 |
+| `config/selection.py` | Which checks take part in a run (filters, enabled flags) | Day 2 |
 | `config/types.py` | Shared field types (`Duration`) | Day 1 |
 | `conditions.py` | `Condition` and `Tolerance`, shared numeric comparisons | Day 1 |
 | `results.py` | `CheckStatus`, `CheckOutcome`, `CheckResult`, `RunReport`, exit codes | Day 1 |
+| `errors.py` | `ConfigError`, `SelectionError` (shown without traceback) | Day 2 |
 | `connections/base.py` | `DataSource` protocol, `ColumnInfo` | Day 1 (contract only) |
 | `modules/base.py` | `ValidationModule`, `ModuleParams`, `ExecutionContext` | Day 1 |
 | `modules/<name>.py` | Params models now, module classes on Day 4 | Day 1 / Day 4 |
@@ -98,5 +102,7 @@ Aggregation and custom SQL compare a number with a `Condition`: an operator (`==
 
 ## Open items for the next days
 
-- Day 2: YAML loading, readable config errors, optional execution conditions (`when`), environment variable support for secrets such as SQLAlchemy URLs.
-- Day 3: module registry, engine, DuckDB/SQLAlchemy data sources.
+- Day 3: module registry (and validating each check's params at load time), engine that runs the plan in file order and evaluates `when`, DuckDB/SQLAlchemy data sources.
+- Day 5: wire `--only`, `--skip`, `--module` to `plan_checks`.
+
+Full configuration reference: [configuration.md](configuration.md).
