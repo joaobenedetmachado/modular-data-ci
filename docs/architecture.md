@@ -55,8 +55,8 @@ This split is what keeps modules decoupled: adding a module never changes the co
 
 ```python
 class ValidationModule(ABC, Generic[ParamsT]):
-    name: ClassVar[str]                        # used in YAML: `module: <name>`
-    params_model: ClassVar[type[ModuleParams]] # module-specific settings
+    name: ClassVar[str]  # used in YAML: `module: <name>`
+    params_model: ClassVar[type[ModuleParams]]  # module-specific settings
 
     def run(self, params: ParamsT, context: ExecutionContext) -> CheckOutcome: ...
 ```
