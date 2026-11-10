@@ -38,9 +38,9 @@ The CLI and CI integration must use the same execution engine. The goal is focus
 ### Day 1: Foundation & Architecture
 
 - [x] Create repository and Python project structure.
-- [ ] Define module contracts and standardized result models.
-- [ ] Define and implement Pydantic configuration schemas.
-- [ ] Configure test and lint tooling.
+- [x] Define module contracts and standardized result models.
+- [x] Define and implement Pydantic configuration schemas.
+- [x] Configure test and lint tooling.
 
 **Deliverable:** runnable project skeleton and documented architecture.
 

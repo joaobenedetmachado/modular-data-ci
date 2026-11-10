@@ -42,8 +42,8 @@ checks:
     module: schema
     table: orders
     columns:
-      order_id: { type: integer, required: true }
-      amount: { type: double, required: true }
+      order_id: { type: integer, nullable: false }
+      amount: { type: double, nullable: false }
       created_at: { type: timestamp }
 
   - name: orders_fresh
@@ -54,10 +54,19 @@ checks:
 
   - name: daily_revenue_positive
     module: custom_sql
-    enabled: true
     sql: SELECT SUM(amount) FROM orders WHERE created_at >= CURRENT_DATE
     condition: "> 0"
+
+  - name: daily_orders_stable
+    module: aggregation
+    required: false          # reported, but does not fail CI
+    table: orders
+    function: count
+    period: { column: created_at, window: 1d }
+    compare_to_previous: { max_relative_change: 0.3 }
 ```
+
+Every check accepts `name`, `module`, `enabled` (default `true`), `required` (default `true`) and `description`. All other keys belong to the module.
 
 Run locally:
 
@@ -80,7 +89,17 @@ In GitHub Actions:
 
 ## Result statuses
 
-Every check returns one of: `success`, `failure`, `skipped`, `error`.
+Every check returns one of: `success`, `failure`, `skipped`, `error`. A run fails (exit code `1`) when a required check ends in `failure` or `error`. Exit code `2` means the configuration or arguments are invalid.
+
+See [docs/architecture.md](docs/architecture.md) for the layers and module contract.
+
+## Development
+
+```bash
+uv sync
+uv run pytest
+uv run ruff check . && uv run ruff format --check .
+```
 
 ## Tech stack
 
@@ -92,4 +111,4 @@ See [PROJECT_PLAN.md](PROJECT_PLAN.md) for the 7-day MVP plan, scope boundaries 
 
 ## License
 
-To be defined.
+[MIT](LICENSE)
