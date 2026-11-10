@@ -1,0 +1,78 @@
+# Sample Modular Data CI configuration.
+# Every check accepts: name, module, enabled, required, description, when.
+# All other keys on a check belong to its module.
+
+version: 1
+
+connection:
+  type: duckdb
+  path: ${MDCI_DUCKDB_PATH:-examples/data/shop.duckdb}
+
+# Turn off every check of a module at once.
+modules:
+  aggregation:
+    enabled: ${MDCI_RUN_AGGREGATIONS:-true}
+
+checks:
+  - name: orders_schema
+    module: schema
+    description: Orders table keeps the columns downstream jobs rely on.
+    table: orders
+    columns:
+      order_id: { type: integer, nullable: false }
+      customer_id: { type: integer, nullable: false }
+      amount: { type: double, nullable: false }
+      created_at: { type: timestamp, nullable: false }
+      coupon_code: { type: varchar }
+    allow_extra_columns: false
+
+  - name: orders_fresh
+    module: freshness
+    table: orders
+    timestamp_column: created_at
+    max_age: 24h
+    when:
+      depends_on: orders_schema   # no point checking freshness on a broken table
+
+  - name: revenue_matches_target
+    module: aggregation
+    table: orders
+    function: sum
+    column: amount
+    period: { column: created_at, window: 1d }
+    condition:
+      operator: ">="
+      value: 1000
+      tolerance: { relative: 0.1 }
+    when:
+      depends_on: [orders_schema]
+
+  - name: daily_orders_stable
+    module: aggregation
+    required: false               # reported, but does not fail CI
+    table: orders
+    function: count
+    period: { column: created_at, window: 1d }
+    compare_to_previous: { max_relative_change: 0.3 }
+
+  - name: no_negative_amounts
+    module: custom_sql
+    sql: SELECT COUNT(*) FROM orders WHERE amount < 0
+    condition: "== 0"
+
+  - name: prod_only_coupon_check
+    module: custom_sql
+    sql: SELECT COUNT(*) FROM orders WHERE coupon_code IS NOT NULL AND amount = 0
+    condition: "<= 5"
+    when:
+      env:
+        TARGET: prod
+        GITHUB_REF_NAME: [main, release]
+      sql: SELECT COUNT(*) > 0 FROM orders WHERE coupon_code IS NOT NULL
+
+  - name: legacy_table_schema
+    module: schema
+    enabled: false                # kept for reference, skipped in reports
+    table: orders_legacy
+    columns:
+      id: { type: integer }
