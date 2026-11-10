@@ -1,0 +1,70 @@
+[project]
+name = "modular-data-ci"
+version = "0.1.0.dev0"
+description = "Configuration-driven data quality checks for CI."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+keywords = ["data-quality", "ci", "validation", "duckdb", "github-actions"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Database",
+    "Topic :: Software Development :: Quality Assurance",
+]
+dependencies = [
+    "pydantic>=2.6",
+    "pyyaml>=6.0",
+    "duckdb>=1.0",
+]
+
+[project.optional-dependencies]
+sqlalchemy = ["sqlalchemy>=2.0"]
+
+[project.urls]
+Repository = "https://github.com/joaobenedetmachado/modular-data-ci"
+
+[project.scripts]
+modular-data-ci = "modular_data_ci.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+]
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/modular_data_ci"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers --strict-config"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # bugbear
+    "UP",  # pyupgrade
+    "SIM", # simplify
+    "PT",  # pytest style
+    "RUF", # ruff-specific
+]
