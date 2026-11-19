@@ -57,6 +57,7 @@ def test_builtins_are_registered_by_default():
         "aggregation",
         "custom_sql",
         "freshness",
+        "not_null",
         "row_count",
         "schema",
     ]
