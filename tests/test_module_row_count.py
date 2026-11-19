@@ -3,7 +3,7 @@ from pydantic import ValidationError
 
 from modular_data_ci.modules.row_count import RowCountModule
 from modular_data_ci.results import CheckStatus
-from tests.module_fixtures import run_module, users  # noqa: F401
+from tests.module_fixtures import run_module
 
 
 @pytest.mark.parametrize(
@@ -16,13 +16,13 @@ from tests.module_fixtures import run_module, users  # noqa: F401
         ({"min": 1, "where": "country = 'BR'", "max": 2}, CheckStatus.SUCCESS),
     ],
 )
-def test_row_count(users, params, status):  # noqa: F811
+def test_row_count(users, params, status):
     outcome = run_module(RowCountModule, users, table="users", **params)
     assert outcome.status is status
     assert outcome.details["row_count"] in (5, 2)
 
 
-def test_messages(users):  # noqa: F811
+def test_messages(users):
     assert run_module(RowCountModule, users, table="users", min=10).message == (
         "5 rows, expected at least 10"
     )
