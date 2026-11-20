@@ -60,6 +60,7 @@ def test_builtins_are_registered_by_default():
         "not_null",
         "row_count",
         "schema",
+        "uniqueness",
     ]
 
 
