@@ -62,6 +62,7 @@ def test_builtins_are_registered_by_default():
         "row_count",
         "schema",
         "uniqueness",
+        "value_range",
     ]
 
 

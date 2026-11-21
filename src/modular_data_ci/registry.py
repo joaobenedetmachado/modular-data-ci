@@ -118,6 +118,7 @@ def _builtin_modules() -> list[type[ValidationModule[Any]]]:
     from modular_data_ci.modules.row_count import RowCountModule
     from modular_data_ci.modules.schema import SchemaModule
     from modular_data_ci.modules.uniqueness import UniquenessModule
+    from modular_data_ci.modules.value_range import ValueRangeModule
 
     return [
         SchemaModule,
@@ -128,6 +129,7 @@ def _builtin_modules() -> list[type[ValidationModule[Any]]]:
         NotNullModule,
         UniquenessModule,
         AcceptedValuesModule,
+        ValueRangeModule,
     ]
 
 
