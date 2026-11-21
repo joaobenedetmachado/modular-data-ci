@@ -54,6 +54,7 @@ def _run(module_cls, context, **params):
 
 def test_builtins_are_registered_by_default():
     assert ModuleRegistry.default().names() == [
+        "accepted_values",
         "aggregation",
         "custom_sql",
         "freshness",

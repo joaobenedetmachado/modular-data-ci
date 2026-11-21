@@ -110,6 +110,7 @@ class ModuleRegistry:
 
 
 def _builtin_modules() -> list[type[ValidationModule[Any]]]:
+    from modular_data_ci.modules.accepted_values import AcceptedValuesModule
     from modular_data_ci.modules.aggregation import AggregationModule
     from modular_data_ci.modules.custom_sql import CustomSqlModule
     from modular_data_ci.modules.freshness import FreshnessModule
@@ -126,6 +127,7 @@ def _builtin_modules() -> list[type[ValidationModule[Any]]]:
         RowCountModule,
         NotNullModule,
         UniquenessModule,
+        AcceptedValuesModule,
     ]
 
 
