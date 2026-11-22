@@ -59,6 +59,7 @@ def test_builtins_are_registered_by_default():
         "custom_sql",
         "freshness",
         "not_null",
+        "pattern",
         "row_count",
         "schema",
         "uniqueness",

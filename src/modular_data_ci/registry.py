@@ -115,6 +115,7 @@ def _builtin_modules() -> list[type[ValidationModule[Any]]]:
     from modular_data_ci.modules.custom_sql import CustomSqlModule
     from modular_data_ci.modules.freshness import FreshnessModule
     from modular_data_ci.modules.not_null import NotNullModule
+    from modular_data_ci.modules.pattern import PatternModule
     from modular_data_ci.modules.row_count import RowCountModule
     from modular_data_ci.modules.schema import SchemaModule
     from modular_data_ci.modules.uniqueness import UniquenessModule
@@ -130,6 +131,7 @@ def _builtin_modules() -> list[type[ValidationModule[Any]]]:
         UniquenessModule,
         AcceptedValuesModule,
         ValueRangeModule,
+        PatternModule,
     ]
 
 
