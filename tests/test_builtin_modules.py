@@ -60,6 +60,7 @@ def test_builtins_are_registered_by_default():
         "freshness",
         "not_null",
         "pattern",
+        "referential_integrity",
         "row_count",
         "schema",
         "uniqueness",
