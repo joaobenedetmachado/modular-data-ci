@@ -131,7 +131,6 @@ The entry point name must equal the module's `name`. Name clashes with built-in 
 
 ## Open items for the next days
 
-- Day 6: reusable GitHub Action and a sample workflow that fails on bad data.
 - Day 7: hardening, release workflow, v0.1.0.
 
 Full configuration reference: [configuration.md](configuration.md). CLI: [cli.md](cli.md).

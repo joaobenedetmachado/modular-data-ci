@@ -87,11 +87,11 @@ The CLI and CI integration must use the same execution engine. The goal is focus
 
 ### Day 6: GitHub Actions Integration
 
-- [ ] Create a GitHub Actions workflow or reusable integration.
-- [ ] Execute configured checks in a GitHub-hosted runner.
-- [ ] Verify workflow failure when data quality requirements fail.
-- [ ] Test successful and failing runs in a sample repository.
-- [ ] Document CI setup and usage.
+- [x] Create a GitHub Actions workflow or reusable integration.
+- [x] Execute configured checks in a GitHub-hosted runner.
+- [x] Verify workflow failure when data quality requirements fail.
+- [x] Test successful and failing runs in a sample repository.
+- [x] Document CI setup and usage.
 
 **Deliverable:** working automated data validation in GitHub Actions.
 

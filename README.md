@@ -11,7 +11,7 @@
 
 Configuration-driven data quality checks for CI. Define reusable checks in YAML, run them locally with a CLI, and run the exact same checks in GitHub Actions.
 
-> **Status:** early development, working toward **v0.1.0**. The engine, the four modules and the CLI (`run`, `validate`, `list`, `modules`) work; the GitHub Actions integration is next, and the package is not on PyPI yet. Progress is tracked in [PROJECT_PLAN.md](PROJECT_PLAN.md).
+> **Status:** early development, working toward **v0.1.0**. The engine, the four modules the CLI (`run`, `validate`, `list`, `modules`) and the GitHub Action work, and the package is not on PyPI yet. Progress is tracked in [PROJECT_PLAN.md](PROJECT_PLAN.md).
 
 ## Why
 
@@ -114,12 +114,13 @@ The command prints a readable summary, writes a JSON report, and exits non-zero 
 In GitHub Actions:
 
 ```yaml
-- uses: actions/setup-python@v5
+- uses: actions/checkout@v4
+- uses: joaobenedetmachado/modular-data-ci@v0
   with:
-    python-version: "3.12"
-- run: pip install modular-data-ci
-- run: modular-data-ci run --config modular-data-ci.yml --report report.json
+    config: modular-data-ci.yml
 ```
+
+Failing checks show up as annotations and in the job summary. See [docs/github-actions.md](docs/github-actions.md) for inputs, outputs and recipes.
 
 ## Result statuses
 
