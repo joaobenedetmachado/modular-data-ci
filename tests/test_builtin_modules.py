@@ -57,6 +57,7 @@ def test_builtins_are_registered_by_default():
         "accepted_values",
         "aggregation",
         "custom_sql",
+        "failing_rows",
         "freshness",
         "not_null",
         "pattern",

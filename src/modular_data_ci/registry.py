@@ -113,6 +113,7 @@ def _builtin_modules() -> list[type[ValidationModule[Any]]]:
     from modular_data_ci.modules.accepted_values import AcceptedValuesModule
     from modular_data_ci.modules.aggregation import AggregationModule
     from modular_data_ci.modules.custom_sql import CustomSqlModule
+    from modular_data_ci.modules.failing_rows import FailingRowsModule
     from modular_data_ci.modules.freshness import FreshnessModule
     from modular_data_ci.modules.not_null import NotNullModule
     from modular_data_ci.modules.pattern import PatternModule
@@ -136,6 +137,7 @@ def _builtin_modules() -> list[type[ValidationModule[Any]]]:
         PatternModule,
         ReferentialIntegrityModule,
         TableComparisonModule,
+        FailingRowsModule,
     ]
 
 
