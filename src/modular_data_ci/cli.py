@@ -74,6 +74,9 @@ def build_parser() -> argparse.ArgumentParser:
         "validate", help="check the configuration without connecting to the data source"
     )
     _add_config_argument(validate)
+
+    listing = commands.add_parser("list", help="list the configured checks")
+    _add_config_argument(listing)
     return parser
 
 
@@ -92,7 +95,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.command is None:
         parser.print_help()
         return EXIT_OK
-    handlers = {"run": _run, "validate": _validate}
+    handlers = {"run": _run, "validate": _validate, "list": _list}
     try:
         return handlers[args.command](args)
     except ModularDataCIError as exc:
@@ -130,6 +133,27 @@ def _validate(args: argparse.Namespace) -> int:
     resolve_checks(config, ModuleRegistry.default(), source=str(path))
     enabled = sum(1 for check in config.checks if check.enabled)
     print(f"{path}: OK ({len(config.checks)} checks, {enabled} enabled)")
+    return EXIT_OK
+
+
+def _list(args: argparse.Namespace) -> int:
+    config = load_config(find_config(args.config))
+    rows = [("NAME", "MODULE", "ENABLED", "REQUIRED", "DESCRIPTION")]
+    for check in config.checks:
+        enabled = check.enabled and config.module_enabled(check.module)
+        rows.append(
+            (
+                check.name,
+                check.module,
+                "yes" if enabled else "no",
+                "yes" if check.required else "no",
+                check.description or "",
+            )
+        )
+    widths = [max(len(row[i]) for row in rows) for i in range(4)]
+    for row in rows:
+        cells = [cell.ljust(width) for cell, width in zip(row[:4], widths, strict=True)]
+        print("  ".join([*cells, row[4]]).rstrip())
     return EXIT_OK
 
 
