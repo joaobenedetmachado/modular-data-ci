@@ -77,6 +77,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     listing = commands.add_parser("list", help="list the configured checks")
     _add_config_argument(listing)
+
+    commands.add_parser("modules", help="list available validation modules (built-in and plugins)")
     return parser
 
 
@@ -95,7 +97,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.command is None:
         parser.print_help()
         return EXIT_OK
-    handlers = {"run": _run, "validate": _validate, "list": _list}
+    handlers = {"run": _run, "validate": _validate, "list": _list, "modules": _modules}
     try:
         return handlers[args.command](args)
     except ModularDataCIError as exc:
@@ -154,6 +156,15 @@ def _list(args: argparse.Namespace) -> int:
     for row in rows:
         cells = [cell.ljust(width) for cell, width in zip(row[:4], widths, strict=True)]
         print("  ".join([*cells, row[4]]).rstrip())
+    return EXIT_OK
+
+
+def _modules(args: argparse.Namespace) -> int:
+    registry = ModuleRegistry.default()
+    width = max(len(name) for name in registry.names())
+    for name in registry.names():
+        module = registry.get(name)
+        print(f"{name.ljust(width)}  {type(module).summary()}".rstrip())
     return EXIT_OK
 
 

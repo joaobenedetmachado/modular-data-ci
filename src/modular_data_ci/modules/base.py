@@ -12,6 +12,7 @@ exceptions; the engine does. A module that raises is reported as ``error``.
 
 from __future__ import annotations
 
+import sys
 from abc import ABC, abstractmethod
 from collections.abc import Mapping
 from dataclasses import dataclass
@@ -43,6 +44,12 @@ class ExecutionContext:
 class ValidationModule(ABC, Generic[ParamsT]):
     name: ClassVar[str]
     params_model: ClassVar[type[ModuleParams]]
+
+    @classmethod
+    def summary(cls) -> str:
+        """One-line description: the class docstring, else its Python module's docstring."""
+        doc = cls.__doc__ or getattr(sys.modules.get(cls.__module__), "__doc__", None) or ""
+        return doc.strip().splitlines()[0] if doc.strip() else ""
 
     def parse_params(self, raw: Mapping[str, Any]) -> ParamsT:
         return self.params_model.model_validate(dict(raw))  # type: ignore[return-value]
