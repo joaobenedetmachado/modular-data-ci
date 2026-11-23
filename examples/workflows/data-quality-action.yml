@@ -1,0 +1,30 @@
+# Copy to .github/workflows/data-quality.yml in your repository.
+name: Data quality
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 6 * * *"   # also catch data that goes stale between deploys
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: joaobenedetmachado/modular-data-ci@v0
+        with:
+          config: modular-data-ci.yml
+          version: "0.1.0"
+          extras: sqlalchemy
+          junit: junit.xml
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: data-quality-report
+          path: |
+            modular-data-ci-report.json
+            junit.xml
