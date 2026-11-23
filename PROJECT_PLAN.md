@@ -97,12 +97,12 @@ The CLI and CI integration must use the same execution engine. The goal is focus
 
 ### Day 7: Hardening, Documentation & Release
 
-- [ ] Run end-to-end tests.
-- [ ] Fix remaining bugs and edge cases.
-- [ ] Review architecture and module extensibility.
-- [ ] Complete README and configuration reference.
-- [ ] Add practical examples and sample workflows.
-- [ ] Prepare v0.1.0 release.
+- [x] Run end-to-end tests.
+- [x] Fix remaining bugs and edge cases.
+- [x] Review architecture and module extensibility.
+- [x] Complete README and configuration reference.
+- [x] Add practical examples and sample workflows.
+- [x] Prepare v0.1.0 release.
 
 **Deliverable:** functional, documented MVP ready for public use.
 

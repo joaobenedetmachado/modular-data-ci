@@ -1,6 +1,6 @@
 [project]
 name = "modular-data-ci"
-version = "0.1.0.dev0"
+version = "0.1.0"
 description = "Configuration-driven data quality checks for CI."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -8,7 +8,7 @@ license = "MIT"
 license-files = ["LICENSE"]
 keywords = ["data-quality", "ci", "validation", "duckdb", "github-actions"]
 classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
+    "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",

@@ -129,8 +129,4 @@ row_count = "my_package.checks:RowCountModule"
 
 The entry point name must equal the module's `name`. Name clashes with built-in modules are rejected.
 
-## Open items for the next days
-
-- Day 7: hardening, release workflow, v0.1.0.
-
 Full configuration reference: [configuration.md](configuration.md). CLI: [cli.md](cli.md).
