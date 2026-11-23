@@ -40,3 +40,48 @@ def render_annotations(report: RunReport, config_path: str | None = None) -> str
         prefix = f"file={_escape_property(config_path)},"
         lines = [line.replace(" title=", f" {prefix}title=", 1) for line in lines]
     return "".join(f"{line}\n" for line in lines)
+
+
+_STATUS_ICONS = {
+    CheckStatus.SUCCESS: "✅",
+    CheckStatus.FAILURE: "❌",
+    CheckStatus.SKIPPED: "⏭️",
+    CheckStatus.ERROR: "⚠️",
+}
+
+
+def _cell(text: str) -> str:
+    return text.replace("|", "\\|").replace("\n", " ")
+
+
+def render_step_summary(report: RunReport) -> str:
+    """Markdown table for ``$GITHUB_STEP_SUMMARY``."""
+    summary = report.summary
+    verdict = "passed" if report.passed else f"failed ({summary.blocking} blocking)"
+    lines = [
+        f"### Modular Data CI: {verdict}",
+        "",
+        f"{summary.total} checks: {summary.success} passed, {summary.failure} failed, "
+        f"{summary.error} errors, {summary.skipped} skipped",
+        "",
+        "| Status | Check | Module | Required | Message |",
+        "|---|---|---|---|---|",
+    ]
+    for result in report.results:
+        lines.append(
+            f"| {_STATUS_ICONS[result.status]} {result.status.value} | `{_cell(result.name)}` "
+            f"| {result.module} | {'yes' if result.required else 'no'} "
+            f"| {_cell(result.message)} |"
+        )
+    return "\n".join(lines) + "\n"
+
+
+def append_step_summary(report: RunReport, env: Mapping[str, str] | None = None) -> bool:
+    """Append the summary to ``$GITHUB_STEP_SUMMARY`` when set. Returns True if written."""
+    env = os.environ if env is None else env
+    path = env.get("GITHUB_STEP_SUMMARY")
+    if not path:
+        return False
+    with open(path, "a", encoding="utf-8") as handle:
+        handle.write(render_step_summary(report))
+    return True

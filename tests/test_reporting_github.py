@@ -34,3 +34,15 @@ def test_annotations_point_at_config_file():
         report(CheckResult(name="a", module="m", status=CheckStatus.FAILURE)), "ci/c.yml"
     )
     assert text.startswith("::error file=ci/c.yml,title=a (failure)::")
+
+
+def test_step_summary_table(tmp_path):
+    from modular_data_ci.reporting.github import append_step_summary
+
+    r = report(CheckResult(name="a|b", module="m", status=CheckStatus.FAILURE, message="x"))
+    target = tmp_path / "summary.md"
+    assert append_step_summary(r, {"GITHUB_STEP_SUMMARY": str(target)})
+    text = target.read_text()
+    assert "### Modular Data CI: failed (1 blocking)" in text
+    assert "| ❌ failure | `a\\|b` | m | yes | x |" in text
+    assert not append_step_summary(r, {})
