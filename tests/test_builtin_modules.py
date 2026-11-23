@@ -63,6 +63,7 @@ def test_builtins_are_registered_by_default():
         "referential_integrity",
         "row_count",
         "schema",
+        "table_comparison",
         "uniqueness",
         "value_range",
     ]
