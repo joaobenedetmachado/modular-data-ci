@@ -53,14 +53,28 @@ def _line(result: CheckResult, style: _Style) -> str:
     return text
 
 
-def render_terminal(report: RunReport, *, color: bool = False) -> str:
-    """Return the full terminal summary, one line per check plus a totals line."""
+def _details(result: CheckResult, style: _Style) -> list[str]:
+    return [style(f"        {key}: {value}", _DIM) for key, value in result.details.items()]
+
+
+def render_terminal(report: RunReport, *, color: bool = False, verbosity: int = 0) -> str:
+    """Return the terminal summary.
+
+    ``verbosity`` -1 lists only failing and erroring checks, 0 lists every check,
+    1 also prints the details of checks that did not succeed, 2 prints all details.
+    """
     style = _Style(color)
     lines = [style(f"modular-data-ci {report.tool_version}", _BOLD)]
     if report.config_path:
         lines.append(style(f"config: {report.config_path}", _DIM))
     lines.append("")
-    lines.extend(_line(result, style) for result in report.results)
+    for result in report.results:
+        problem = result.status in (CheckStatus.FAILURE, CheckStatus.ERROR)
+        if verbosity < 0 and not problem:
+            continue
+        lines.append(_line(result, style))
+        if verbosity >= 2 or (verbosity == 1 and result.status is not CheckStatus.SUCCESS):
+            lines.extend(_details(result, style))
     summary = report.summary
     lines.append("")
     lines.append(

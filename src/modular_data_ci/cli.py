@@ -45,6 +45,11 @@ def build_parser() -> argparse.ArgumentParser:
         default="auto",
         help="colorize output (default: auto; honours NO_COLOR)",
     )
+    noise = run.add_mutually_exclusive_group()
+    noise.add_argument(
+        "-v", "--verbose", action="count", default=0, help="show check details (-vv: all)"
+    )
+    noise.add_argument("-q", "--quiet", action="store_true", help="only list failing checks")
     run.add_argument(
         "--only",
         action="append",
@@ -92,7 +97,9 @@ def _run(args: argparse.Namespace) -> int:
         config_path=str(args.config),
     )
     color = use_color(args.color, sys.stdout)
-    sys.stdout.write(render_terminal(report, color=color))
+    sys.stdout.write(
+        render_terminal(report, color=color, verbosity=-1 if args.quiet else args.verbose)
+    )
     if args.report:
         write_json(report, args.report)
     return report.exit_code

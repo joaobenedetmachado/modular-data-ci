@@ -57,3 +57,17 @@ def test_use_color_modes():
     assert use_color("auto", object(), env={"FORCE_COLOR": "1"})
     assert use_color("auto", Tty(), env={})
     assert not use_color("auto", object(), env={})
+
+
+def test_verbosity_levels():
+    ok = CheckResult(name="ok", module="m", status=CheckStatus.SUCCESS, details={"v": 1})
+    bad = CheckResult(name="bad", module="m", status=CheckStatus.FAILURE, details={"v": 2})
+    r = report(ok, bad)
+    quiet = render_terminal(r, verbosity=-1)
+    assert "ok [m]" not in quiet
+    assert "bad [m]" in quiet
+    assert "v: " not in render_terminal(r)
+    one = render_terminal(r, verbosity=1)
+    assert "v: 2" in one
+    assert "v: 1" not in one
+    assert "v: 1" in render_terminal(r, verbosity=2)
