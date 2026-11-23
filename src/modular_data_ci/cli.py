@@ -18,6 +18,7 @@ from modular_data_ci import __version__
 from modular_data_ci.config import load_config
 from modular_data_ci.engine import Engine
 from modular_data_ci.errors import ConfigError, ModularDataCIError
+from modular_data_ci.registry import ModuleRegistry, resolve_checks
 from modular_data_ci.reporting import render_terminal, write_json
 from modular_data_ci.reporting.terminal import use_color
 from modular_data_ci.results import EXIT_OK, EXIT_USAGE_ERROR
@@ -35,12 +36,7 @@ def build_parser() -> argparse.ArgumentParser:
     commands = parser.add_subparsers(dest="command", metavar="<command>")
 
     run = commands.add_parser("run", help="run the configured checks")
-    run.add_argument(
-        "-c",
-        "--config",
-        type=Path,
-        help=f"configuration file (default: ${CONFIG_ENV_VAR}, then {DEFAULT_CONFIG_NAMES[0]})",
-    )
+    _add_config_argument(run)
     run.add_argument("--report", type=Path, help="write a JSON report to this path")
     run.add_argument(
         "--color",
@@ -74,7 +70,20 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="MODULE",
         help="run only checks of this module (repeatable)",
     )
+    validate = commands.add_parser(
+        "validate", help="check the configuration without connecting to the data source"
+    )
+    _add_config_argument(validate)
     return parser
+
+
+def _add_config_argument(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "-c",
+        "--config",
+        type=Path,
+        help=f"configuration file (default: ${CONFIG_ENV_VAR}, then {DEFAULT_CONFIG_NAMES[0]})",
+    )
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -83,8 +92,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.command is None:
         parser.print_help()
         return EXIT_OK
+    handlers = {"run": _run, "validate": _validate}
     try:
-        return _run(args)
+        return handlers[args.command](args)
     except ModularDataCIError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return EXIT_USAGE_ERROR
@@ -112,6 +122,15 @@ def _run(args: argparse.Namespace) -> int:
 def _split(values: Sequence[str]) -> list[str]:
     """Accept both ``--only a --only b`` and ``--only a,b``."""
     return [part.strip() for value in values for part in value.split(",") if part.strip()]
+
+
+def _validate(args: argparse.Namespace) -> int:
+    path = find_config(args.config)
+    config = load_config(path)
+    resolve_checks(config, ModuleRegistry.default(), source=str(path))
+    enabled = sum(1 for check in config.checks if check.enabled)
+    print(f"{path}: OK ({len(config.checks)} checks, {enabled} enabled)")
+    return EXIT_OK
 
 
 def find_config(explicit: Path | None, cwd: Path | None = None) -> Path:
