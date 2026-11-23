@@ -35,3 +35,25 @@ def test_failing_run_counts_blocking():
     assert "ERR   b [custom_sql] (optional)" in text
     assert "SKIP  c" in text
     assert "RESULT: FAILED (1 blocking)" in text
+
+
+class Tty:
+    def isatty(self):
+        return True
+
+
+def test_color_codes_only_when_enabled():
+    r = report(result("a", CheckStatus.SUCCESS))
+    assert "\033[" not in render_terminal(r)
+    assert "\033[32mPASS" in render_terminal(r, color=True)
+
+
+def test_use_color_modes():
+    from modular_data_ci.reporting.terminal import use_color
+
+    assert use_color("always", object(), env={"NO_COLOR": "1"})
+    assert not use_color("never", Tty(), env={})
+    assert not use_color("auto", Tty(), env={"NO_COLOR": ""})
+    assert use_color("auto", object(), env={"FORCE_COLOR": "1"})
+    assert use_color("auto", Tty(), env={})
+    assert not use_color("auto", object(), env={})

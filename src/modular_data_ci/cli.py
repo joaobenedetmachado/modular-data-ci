@@ -18,6 +18,7 @@ from modular_data_ci.config import load_config
 from modular_data_ci.engine import Engine
 from modular_data_ci.errors import ModularDataCIError
 from modular_data_ci.reporting import render_terminal, write_json
+from modular_data_ci.reporting.terminal import use_color
 from modular_data_ci.results import EXIT_OK, EXIT_USAGE_ERROR
 
 
@@ -38,6 +39,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="configuration file (default: modular-data-ci.yml)",
     )
     run.add_argument("--report", type=Path, help="write a JSON report to this path")
+    run.add_argument(
+        "--color",
+        choices=["auto", "always", "never"],
+        default="auto",
+        help="colorize output (default: auto; honours NO_COLOR)",
+    )
     run.add_argument(
         "--only",
         action="append",
@@ -84,7 +91,8 @@ def _run(args: argparse.Namespace) -> int:
         modules=_split(args.module),
         config_path=str(args.config),
     )
-    sys.stdout.write(render_terminal(report))
+    color = use_color(args.color, sys.stdout)
+    sys.stdout.write(render_terminal(report, color=color))
     if args.report:
         write_json(report, args.report)
     return report.exit_code
