@@ -120,6 +120,7 @@ def _builtin_modules() -> list[type[ValidationModule[Any]]]:
     from modular_data_ci.modules.referential_integrity import ReferentialIntegrityModule
     from modular_data_ci.modules.row_count import RowCountModule
     from modular_data_ci.modules.schema import SchemaModule
+    from modular_data_ci.modules.string_length import StringLengthModule
     from modular_data_ci.modules.table_comparison import TableComparisonModule
     from modular_data_ci.modules.uniqueness import UniquenessModule
     from modular_data_ci.modules.value_range import ValueRangeModule
@@ -138,6 +139,7 @@ def _builtin_modules() -> list[type[ValidationModule[Any]]]:
         ReferentialIntegrityModule,
         TableComparisonModule,
         FailingRowsModule,
+        StringLengthModule,
     ]
 
 
