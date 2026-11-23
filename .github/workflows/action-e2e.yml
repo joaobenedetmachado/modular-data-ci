@@ -1,0 +1,62 @@
+# Runs the repository's own GitHub Action against the sample database:
+# healthy data must pass, broken data must make the step fail.
+name: Action E2E
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  healthy-data-passes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install duckdb && python examples/make_sample_db.py
+      - id: checks
+        uses: ./
+        with:
+          config: examples/modular-data-ci.yml
+          junit: junit.xml
+      - name: Expect success
+        if: steps.checks.outputs.passed != 'true'
+        run: exit 1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: healthy-report
+          path: |
+            modular-data-ci-report.json
+            junit.xml
+
+  broken-data-fails:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install duckdb && python examples/make_sample_db.py --broken
+      - id: checks
+        uses: ./
+        continue-on-error: true
+        with:
+          config: examples/modular-data-ci.yml
+      - name: Expect the checks step to fail
+        env:
+          OUTCOME: ${{ steps.checks.outcome }}
+          PASSED: ${{ steps.checks.outputs.passed }}
+        run: |
+          echo "outcome=$OUTCOME passed=$PASSED"
+          test "$OUTCOME" = "failure"
+          test "$PASSED" = "false"
+          python - <<'PY'
+          import json
+          report = json.load(open("modular-data-ci-report.json"))
+          failed = {r["name"] for r in report["results"] if r["status"] == "failure"}
+          assert {"orders_fresh", "no_negative_amounts"} <= failed, failed
+          PY
