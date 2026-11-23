@@ -11,7 +11,7 @@
 
 Configuration-driven data quality checks for CI. Define reusable checks in YAML, run them locally with a CLI, and run the exact same checks in GitHub Actions.
 
-> **Status:** early development, working toward **v0.1.0**. The engine and the four modules work; the `run` command and the GitHub Actions integration are next, and the package is not on PyPI yet. Progress is tracked in [PROJECT_PLAN.md](PROJECT_PLAN.md).
+> **Status:** early development, working toward **v0.1.0**. The engine, the four modules and the CLI (`run`, `validate`, `list`, `modules`) work; the GitHub Actions integration is next, and the package is not on PyPI yet. Progress is tracked in [PROJECT_PLAN.md](PROJECT_PLAN.md).
 
 ## Why
 
@@ -125,7 +125,7 @@ In GitHub Actions:
 
 Every check returns one of: `success`, `failure`, `skipped`, `error`. A run fails (exit code `1`) when a required check ends in `failure` or `error`. Exit code `2` means the configuration or arguments are invalid.
 
-See [docs/architecture.md](docs/architecture.md) for the layers and module contract.
+See [docs/architecture.md](docs/architecture.md) for the layers and module contract, and [docs/cli.md](docs/cli.md) for every command and option.
 
 ## Development
 

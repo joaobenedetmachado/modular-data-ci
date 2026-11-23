@@ -165,7 +165,7 @@ connection:
 
 The order of decisions for each check:
 
-1. CLI filters (`--only`, `--skip`, `--module`, Day 5) remove checks from the run and the report entirely. Unknown names are an error.
+1. CLI filters (`--only`, `--skip`, `--module`, see [cli.md](cli.md)) remove checks from the run and the report entirely. Unknown names are an error.
 2. `enabled: false` on the check, or `enabled: false` on its module, reports it as `skipped`.
 3. `when` is evaluated at run time, in file order.
 

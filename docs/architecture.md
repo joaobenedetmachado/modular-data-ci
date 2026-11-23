@@ -49,7 +49,11 @@ modular-data-ci.yml
 | `modules/base.py` | `ValidationModule`, `ModuleParams`, `ExecutionContext` | Day 1 |
 | `modules/<name>.py` | Built-in modules: `schema`, `aggregation`, `freshness`, `custom_sql` | Day 4 |
 | `modules/_sql.py` | Shared SQL helpers (WHERE building, timestamp params, number/time conversion) | Day 4 |
-| `cli.py` | Entry point (`--version` today, `run` on Day 5) | Day 1 / Day 5 |
+| `reporting/terminal.py` | Terminal summary, colors, verbosity | Day 5 |
+| `reporting/json_report.py` | JSON report (`schema_version` 1) | Day 5 |
+| `reporting/junit.py` | JUnit XML report | Day 5 |
+| `reporting/github.py` | GitHub annotations and step summary | Day 5 |
+| `cli.py` | `run`, `validate`, `list`, `modules` | Day 5 |
 
 ## Contracts
 
@@ -127,6 +131,7 @@ The entry point name must equal the module's `name`. Name clashes with built-in 
 
 ## Open items for the next days
 
-- Day 5: CLI `run` wiring `--only`, `--skip`, `--module`, terminal and JSON reporters.
+- Day 6: reusable GitHub Action and a sample workflow that fails on bad data.
+- Day 7: hardening, release workflow, v0.1.0.
 
-Full configuration reference: [configuration.md](configuration.md).
+Full configuration reference: [configuration.md](configuration.md). CLI: [cli.md](cli.md).

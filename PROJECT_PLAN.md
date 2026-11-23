@@ -76,12 +76,12 @@ The CLI and CI integration must use the same execution engine. The goal is focus
 
 ### Day 5: CLI & Reporting
 
-- [ ] Implement the `modular-data-ci run` command.
-- [ ] Support configuration file arguments.
-- [ ] Add readable terminal output.
-- [ ] Generate structured JSON reports.
-- [ ] Return non-zero exit codes when required checks fail.
-- [ ] Test local execution end to end.
+- [x] Implement the `modular-data-ci run` command.
+- [x] Support configuration file arguments.
+- [x] Add readable terminal output.
+- [x] Generate structured JSON reports.
+- [x] Return non-zero exit codes when required checks fail.
+- [x] Test local execution end to end.
 
 **Deliverable:** complete local CLI workflow.
 
