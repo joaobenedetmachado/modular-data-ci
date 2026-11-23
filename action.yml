@@ -1,0 +1,92 @@
+name: Modular Data CI
+description: Run configuration-driven data quality checks and fail the job when required checks fail.
+author: joaobenedetmachado
+branding:
+  icon: check-circle
+  color: green
+
+inputs:
+  config:
+    description: Path to the configuration file. Empty uses MDCI_CONFIG or modular-data-ci.yml.
+    required: false
+    default: ""
+  report:
+    description: Path of the JSON report to write.
+    required: false
+    default: modular-data-ci-report.json
+  junit:
+    description: Optional path of a JUnit XML report.
+    required: false
+    default: ""
+  args:
+    description: Extra arguments for `modular-data-ci run`, e.g. "--skip slow_check -v".
+    required: false
+    default: ""
+  version:
+    description: >-
+      Package to install: a version ("0.1.0"), "local" to install the action's own
+      checkout (useful for testing the action), or a pip requirement.
+    required: false
+    default: local
+  extras:
+    description: Optional extras to install, e.g. "sqlalchemy".
+    required: false
+    default: ""
+  python-version:
+    description: Python version to set up.
+    required: false
+    default: "3.12"
+
+outputs:
+  passed:
+    description: '"true" when every required check passed.'
+    value: ${{ steps.run.outputs.passed }}
+  report:
+    description: Path of the JSON report.
+    value: ${{ inputs.report }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install modular-data-ci
+      shell: bash
+      env:
+        MDCI_VERSION: ${{ inputs.version }}
+        MDCI_EXTRAS: ${{ inputs.extras }}
+        ACTION_PATH: ${{ github.action_path }}
+      run: |
+        extras=""
+        if [ -n "$MDCI_EXTRAS" ]; then extras="[$MDCI_EXTRAS]"; fi
+        if [ "$MDCI_VERSION" = "local" ]; then
+          python -m pip install --quiet "${ACTION_PATH}${extras}"
+        elif [[ "$MDCI_VERSION" =~ ^[0-9] ]]; then
+          python -m pip install --quiet "modular-data-ci${extras}==${MDCI_VERSION}"
+        else
+          python -m pip install --quiet "$MDCI_VERSION"
+        fi
+        modular-data-ci --version
+
+    - name: Run checks
+      id: run
+      shell: bash
+      env:
+        MDCI_INPUT_CONFIG: ${{ inputs.config }}
+        MDCI_INPUT_REPORT: ${{ inputs.report }}
+        MDCI_INPUT_JUNIT: ${{ inputs.junit }}
+        MDCI_INPUT_ARGS: ${{ inputs.args }}
+      run: |
+        cmd=(modular-data-ci run --report "$MDCI_INPUT_REPORT")
+        if [ -n "$MDCI_INPUT_CONFIG" ]; then cmd+=(--config "$MDCI_INPUT_CONFIG"); fi
+        if [ -n "$MDCI_INPUT_JUNIT" ]; then cmd+=(--junit "$MDCI_INPUT_JUNIT"); fi
+        # shellcheck disable=SC2206
+        if [ -n "$MDCI_INPUT_ARGS" ]; then cmd+=($MDCI_INPUT_ARGS); fi
+        set +e
+        "${cmd[@]}"
+        code=$?
+        set -e
+        if [ "$code" -eq 0 ]; then echo "passed=true" >> "$GITHUB_OUTPUT"; else echo "passed=false" >> "$GITHUB_OUTPUT"; fi
+        exit "$code"
