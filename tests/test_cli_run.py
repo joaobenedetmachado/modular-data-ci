@@ -77,3 +77,14 @@ def test_unknown_filter_exits_2(project, capsys):
     write_config(project / "modular-data-ci.yml", "== 5")
     assert main(["run", "--only", "nope"]) == 2
     assert "unknown check(s): nope" in capsys.readouterr().err
+
+
+def test_finds_yaml_extension(project):
+    write_config(project / "modular-data-ci.yaml", "== 5")
+    assert main(["run"]) == 0
+
+
+def test_config_from_env(project, monkeypatch):
+    write_config(project / "elsewhere.yml", "== 5")
+    monkeypatch.setenv("MDCI_CONFIG", "elsewhere.yml")
+    assert main(["run"]) == 0
