@@ -25,6 +25,7 @@ from modular_data_ci.reporting.github import (
     in_github_actions,
     render_annotations,
 )
+from modular_data_ci.reporting.junit import write_junit
 from modular_data_ci.reporting.terminal import use_color
 from modular_data_ci.results import EXIT_OK, EXIT_USAGE_ERROR
 
@@ -43,6 +44,7 @@ def build_parser() -> argparse.ArgumentParser:
     run = commands.add_parser("run", help="run the configured checks")
     _add_config_argument(run)
     run.add_argument("--report", type=Path, help="write a JSON report to this path")
+    run.add_argument("--junit", type=Path, help="write a JUnit XML report to this path")
     run.add_argument(
         "--color",
         choices=["auto", "always", "never"],
@@ -129,6 +131,8 @@ def _run(args: argparse.Namespace) -> int:
         append_step_summary(report)
     if args.report:
         write_json(report, args.report)
+    if args.junit:
+        write_junit(report, args.junit)
     return report.exit_code
 
 
