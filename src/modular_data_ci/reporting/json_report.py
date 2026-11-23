@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from modular_data_ci.results import RunReport
@@ -24,6 +25,4 @@ def write_json(report: RunReport, path: str | Path) -> Path:
 
 
 def _dumps(data: object, indent: int | None) -> str:
-    import json
-
     return json.dumps(data, indent=indent, ensure_ascii=False)
