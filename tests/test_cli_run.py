@@ -53,3 +53,27 @@ def test_invalid_config_exits_2(project, capsys):
 def test_missing_config_exits_2(project, capsys):
     assert main(["run"]) == 2
     assert "file not found" in capsys.readouterr().err
+
+
+def test_filters(project, capsys):
+    (project / "modular-data-ci.yml").write_text(
+        """
+connection: {type: duckdb, path: data.duckdb}
+checks:
+  - {name: a, module: custom_sql, sql: SELECT 1, condition: "== 1"}
+  - {name: b, module: custom_sql, sql: SELECT 1, condition: "== 2"}
+  - {name: c, module: freshness, table: t, timestamp_column: x, max_age: 1h}
+"""
+    )
+    assert main(["run", "--only", "a"]) == 0
+    out = capsys.readouterr().out
+    assert " a [" in out
+    assert " b [" not in out
+    assert main(["run", "--skip", "b,c"]) == 0
+    assert main(["run", "--module", "custom_sql"]) == 1
+
+
+def test_unknown_filter_exits_2(project, capsys):
+    write_config(project / "modular-data-ci.yml", "== 5")
+    assert main(["run", "--only", "nope"]) == 2
+    assert "unknown check(s): nope" in capsys.readouterr().err

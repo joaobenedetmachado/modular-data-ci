@@ -38,6 +38,27 @@ def build_parser() -> argparse.ArgumentParser:
         help="configuration file (default: modular-data-ci.yml)",
     )
     run.add_argument("--report", type=Path, help="write a JSON report to this path")
+    run.add_argument(
+        "--only",
+        action="append",
+        default=[],
+        metavar="NAME",
+        help="run only this check (repeatable)",
+    )
+    run.add_argument(
+        "--skip",
+        action="append",
+        default=[],
+        metavar="NAME",
+        help="leave out this check (repeatable)",
+    )
+    run.add_argument(
+        "--module",
+        action="append",
+        default=[],
+        metavar="MODULE",
+        help="run only checks of this module (repeatable)",
+    )
     return parser
 
 
@@ -56,8 +77,19 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 def _run(args: argparse.Namespace) -> int:
     config = load_config(args.config)
-    report = Engine().run(config, config_path=str(args.config))
+    report = Engine().run(
+        config,
+        only=_split(args.only),
+        skip=_split(args.skip),
+        modules=_split(args.module),
+        config_path=str(args.config),
+    )
     sys.stdout.write(render_terminal(report))
     if args.report:
         write_json(report, args.report)
     return report.exit_code
+
+
+def _split(values: Sequence[str]) -> list[str]:
+    """Accept both ``--only a --only b`` and ``--only a,b``."""
+    return [part.strip() for value in values for part in value.split(",") if part.strip()]
