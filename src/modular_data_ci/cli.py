@@ -31,6 +31,7 @@ from modular_data_ci.results import EXIT_OK, EXIT_USAGE_ERROR
 
 DEFAULT_CONFIG_NAMES = ("modular-data-ci.yml", "modular-data-ci.yaml", ".modular-data-ci.yml")
 CONFIG_ENV_VAR = "MDCI_CONFIG"
+EXIT_INTERRUPTED = 130
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -110,6 +111,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     except ModularDataCIError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return EXIT_USAGE_ERROR
+    except KeyboardInterrupt:
+        print("interrupted", file=sys.stderr)
+        return EXIT_INTERRUPTED
 
 
 def _run(args: argparse.Namespace) -> int:
@@ -129,10 +133,14 @@ def _run(args: argparse.Namespace) -> int:
     if in_github_actions():
         sys.stdout.write(render_annotations(report, str(args.config)))
         append_step_summary(report)
-    if args.report:
-        write_json(report, args.report)
-    if args.junit:
-        write_junit(report, args.junit)
+    try:
+        if args.report:
+            write_json(report, args.report)
+        if args.junit:
+            write_junit(report, args.junit)
+    except OSError as exc:
+        print(f"error: cannot write report: {exc}", file=sys.stderr)
+        return EXIT_USAGE_ERROR
     return report.exit_code
 
 

@@ -88,3 +88,20 @@ def test_config_from_env(project, monkeypatch):
     write_config(project / "elsewhere.yml", "== 5")
     monkeypatch.setenv("MDCI_CONFIG", "elsewhere.yml")
     assert main(["run"]) == 0
+
+
+def test_unwritable_report_exits_2(project, capsys):
+    write_config(project / "modular-data-ci.yml", "== 5")
+    (project / "file").write_text("")
+    assert main(["run", "--report", "file/report.json"]) == 2
+    assert "cannot write report" in capsys.readouterr().err
+
+
+def test_ctrl_c_exits_130(project, monkeypatch, capsys):
+    import modular_data_ci.cli as cli
+
+    def interrupt(args):
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(cli, "_run", interrupt)
+    assert main(["run"]) == 130
