@@ -20,6 +20,7 @@ from modular_data_ci.engine import Engine
 from modular_data_ci.errors import ConfigError, ModularDataCIError
 from modular_data_ci.registry import ModuleRegistry, resolve_checks
 from modular_data_ci.reporting import render_terminal, write_json
+from modular_data_ci.reporting.github import in_github_actions, render_annotations
 from modular_data_ci.reporting.terminal import use_color
 from modular_data_ci.results import EXIT_OK, EXIT_USAGE_ERROR
 
@@ -119,6 +120,8 @@ def _run(args: argparse.Namespace) -> int:
     sys.stdout.write(
         render_terminal(report, color=color, verbosity=-1 if args.quiet else args.verbose)
     )
+    if in_github_actions():
+        sys.stdout.write(render_annotations(report, str(args.config)))
     if args.report:
         write_json(report, args.report)
     return report.exit_code
