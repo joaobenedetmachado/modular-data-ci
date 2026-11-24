@@ -141,6 +141,24 @@ No rows or NULL is a `failure`. More than one row or column, or a non-numeric va
   condition: "== 0"
 ```
 
+### `row_count`
+
+| Key | Default | Meaning |
+|---|---|---|
+| `table` | required | |
+| `min` | none | Fewest rows allowed |
+| `max` | none | Most rows allowed |
+| `where` | none | SQL filter |
+
+At least one of `min` or `max`.
+
+```yaml
+- name: orders_not_empty
+  module: row_count
+  table: orders
+  min: 1
+```
+
 ## Environment variables
 
 Any string value can reference environment variables:
