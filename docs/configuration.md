@@ -159,6 +159,24 @@ At least one of `min` or `max`.
   min: 1
 ```
 
+### `not_null`
+
+| Key | Default | Meaning |
+|---|---|---|
+| `table` | required | |
+| `columns` | required | List of columns that must not contain NULL |
+| `max_nulls` | `0` | NULLs tolerated per column |
+| `where` | none | SQL filter |
+
+Runs one query for all columns. The message lists each offending column with its NULL count.
+
+```yaml
+- name: customer_contact_complete
+  module: not_null
+  table: customers
+  columns: [email, country]
+```
+
 ## Environment variables
 
 Any string value can reference environment variables:
