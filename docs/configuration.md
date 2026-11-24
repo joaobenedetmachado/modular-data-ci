@@ -177,6 +177,23 @@ Runs one query for all columns. The message lists each offending column with its
   columns: [email, country]
 ```
 
+### `uniqueness`
+
+| Key | Default | Meaning |
+|---|---|---|
+| `table` | required | |
+| `columns` | required | A column or a list forming a composite key |
+| `ignore_nulls` | `true` | Skip rows with a NULL in any key column |
+| `where` | none | SQL filter |
+| `sample_size` | `5` | Duplicated keys included in `details.sample` (0 to 100) |
+
+```yaml
+- name: one_row_per_order
+  module: uniqueness
+  table: order_items
+  columns: [order_id, line_number]
+```
+
 ## Environment variables
 
 Any string value can reference environment variables:
