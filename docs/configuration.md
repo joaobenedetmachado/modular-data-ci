@@ -194,6 +194,27 @@ Runs one query for all columns. The message lists each offending column with its
   columns: [order_id, line_number]
 ```
 
+### `accepted_values`
+
+| Key | Default | Meaning |
+|---|---|---|
+| `table` | required | |
+| `column` | required | |
+| `values` | required | Allowed values (strings, numbers or booleans) |
+| `allow_null` | `true` | `false` counts NULL as an unexpected value |
+| `where` | none | SQL filter |
+| `sample_size` | `10` | Unexpected values listed in `details.unexpected_values` with their counts |
+
+Values are passed as bind parameters, never pasted into SQL.
+
+```yaml
+- name: known_order_status
+  module: accepted_values
+  table: orders
+  column: status
+  values: [pending, paid, shipped, cancelled]
+```
+
 ## Environment variables
 
 Any string value can reference environment variables:
