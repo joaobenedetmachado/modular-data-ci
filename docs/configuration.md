@@ -237,6 +237,26 @@ NULLs are ignored; combine with `not_null` to forbid them. On failure the messag
   max: 100
 ```
 
+### `pattern`
+
+| Key | Default | Meaning |
+|---|---|---|
+| `table` | required | |
+| `column` | required | |
+| `regex` | required | Every non-NULL value must match the **whole** expression |
+| `where` | none | SQL filter |
+| `sample_size` | `5` | Non-matching values in `details.sample` |
+
+On DuckDB, PostgreSQL and MySQL/MariaDB the match runs in SQL. On other databases the distinct values are fetched and matched in Python, which is fine for low-cardinality columns but slow for large ones. Write expressions that work in both RE2/POSIX and Python syntax (avoid lookarounds).
+
+```yaml
+- name: valid_emails
+  module: pattern
+  table: customers
+  column: email
+  regex: '[^@\s]+@[^@\s]+\.[a-z]+'
+```
+
 ## Environment variables
 
 Any string value can reference environment variables:
