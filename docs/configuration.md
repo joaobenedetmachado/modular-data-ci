@@ -215,6 +215,28 @@ Values are passed as bind parameters, never pasted into SQL.
   values: [pending, paid, shipped, cancelled]
 ```
 
+### `value_range`
+
+| Key | Default | Meaning |
+|---|---|---|
+| `table` | required | |
+| `column` | required | Numeric column |
+| `min` | none | Lower bound |
+| `max` | none | Upper bound |
+| `inclusive` | `true` | `false` treats values equal to a bound as out of range |
+| `where` | none | SQL filter |
+
+NULLs are ignored; combine with `not_null` to forbid them. On failure the message includes the smallest and largest offending values.
+
+```yaml
+- name: sane_discounts
+  module: value_range
+  table: orders
+  column: discount_pct
+  min: 0
+  max: 100
+```
+
 ## Environment variables
 
 Any string value can reference environment variables:
