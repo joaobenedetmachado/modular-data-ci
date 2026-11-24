@@ -257,6 +257,26 @@ On DuckDB, PostgreSQL and MySQL/MariaDB the match runs in SQL. On other database
   regex: '[^@\s]+@[^@\s]+\.[a-z]+'
 ```
 
+### `referential_integrity`
+
+| Key | Default | Meaning |
+|---|---|---|
+| `table` | required | Child table |
+| `column` | required | Foreign key column |
+| `references` | required | `{table, column}` of the parent |
+| `where` | none | Filter on the child table (alias `c`) |
+| `sample_size` | `5` | Missing key values in `details.sample` |
+
+NULL foreign keys are ignored; use `not_null` to forbid them.
+
+```yaml
+- name: orders_have_customers
+  module: referential_integrity
+  table: orders
+  column: customer_id
+  references: { table: customers, column: id }
+```
+
 ## Environment variables
 
 Any string value can reference environment variables:
