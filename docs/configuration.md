@@ -296,6 +296,24 @@ NULL aggregates count as 0. Both tables must be reachable from the same connecti
   target: { table: analytics.orders }
 ```
 
+### `failing_rows`
+
+| Key | Default | Meaning |
+|---|---|---|
+| `sql` | required | A SELECT returning the rows that break the rule |
+| `max_rows` | `0` | Rows tolerated |
+| `sample_size` | `5` | Rows included in `details.sample` |
+
+The query is wrapped as a subquery, so it must not end with anything but an optional `;`. Prefer this over `custom_sql` when the offending rows themselves are useful in the report.
+
+```yaml
+- name: shipped_orders_have_tracking
+  module: failing_rows
+  sql: |
+    SELECT order_id, status FROM orders
+    WHERE status = 'shipped' AND tracking_code IS NULL
+```
+
 ## Environment variables
 
 Any string value can reference environment variables:
