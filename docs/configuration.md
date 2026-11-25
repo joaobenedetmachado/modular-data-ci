@@ -277,6 +277,25 @@ NULL foreign keys are ignored; use `not_null` to forbid them.
   references: { table: customers, column: id }
 ```
 
+### `table_comparison`
+
+| Key | Default | Meaning |
+|---|---|---|
+| `source` | required | `{table, where}`: the reference side |
+| `target` | required | `{table, where}`: the side that must match |
+| `function` | `count` | `count`, `count_distinct`, `sum`, `min`, `max` |
+| `column` | none | Required for every function except `count` |
+| `tolerance` | none | `{absolute, relative}`, relative to the source value |
+
+NULL aggregates count as 0. Both tables must be reachable from the same connection.
+
+```yaml
+- name: no_rows_lost_in_transform
+  module: table_comparison
+  source: { table: raw.orders, where: "status != 'test'" }
+  target: { table: analytics.orders }
+```
+
 ## Environment variables
 
 Any string value can reference environment variables:
