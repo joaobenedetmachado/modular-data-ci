@@ -67,10 +67,11 @@ class Engine:
         only: Iterable[str] = (),
         skip: Iterable[str] = (),
         modules: Iterable[str] = (),
+        tags: Iterable[str] = (),
         config_path: str | None = None,
     ) -> RunReport:
         resolved = resolve_checks(config, self.registry, source=config_path or "<config>")
-        plan = plan_checks(config, only=only, skip=skip, modules=modules)
+        plan = plan_checks(config, only=only, skip=skip, modules=modules, tags=tags)
 
         started_at = self.clock()
         if started_at.tzinfo is None:

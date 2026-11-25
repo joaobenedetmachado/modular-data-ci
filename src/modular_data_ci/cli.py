@@ -78,6 +78,13 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="MODULE",
         help="run only checks of this module (repeatable)",
     )
+    run.add_argument(
+        "--tag",
+        action="append",
+        default=[],
+        metavar="TAG",
+        help="run only checks with this tag (repeatable; any tag matches)",
+    )
     validate = commands.add_parser(
         "validate", help="check the configuration without connecting to the data source"
     )
@@ -124,6 +131,7 @@ def _run(args: argparse.Namespace) -> int:
         only=_split(args.only),
         skip=_split(args.skip),
         modules=_split(args.module),
+        tags=_split(args.tag),
         config_path=str(args.config),
     )
     color = use_color(args.color, sys.stdout)

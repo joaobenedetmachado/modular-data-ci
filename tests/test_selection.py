@@ -70,3 +70,19 @@ def test_unused_module_settings_are_rejected():
     text = CONFIG.replace("aggregation: {enabled: false}", "agregation: {enabled: false}")
     with pytest.raises(ConfigError, match="'modules' lists agregation, but no check uses it"):
         parse_config(text, env={})
+
+
+def test_tag_filter():
+    config = parse_config(
+        """
+connection: {type: duckdb}
+checks:
+  - {name: a, module: m, tags: [nightly]}
+  - {name: b, module: m, tags: [fast, nightly]}
+  - {name: c, module: m}
+"""
+    )
+    assert [p.check.name for p in plan_checks(config, tags=["fast"])] == ["b"]
+    assert [p.check.name for p in plan_checks(config, tags=["nightly"])] == ["a", "b"]
+    with pytest.raises(SelectionError, match="no check has tag"):
+        plan_checks(config, tags=["weekly"])
