@@ -43,7 +43,7 @@ Each check is a mapping. These keys are common to every module:
 | Key | Default | Meaning |
 |---|---|---|
 | `name` | required | Unique. Letters, digits, `_`, `.`, `-`; max 128 characters |
-| `module` | required | `schema`, `aggregation`, `freshness` or `custom_sql` |
+| `module` | required | A built-in module (below) or a plugin; `modular-data-ci modules` lists them |
 | `enabled` | `true` | `false` reports the check as `skipped` |
 | `required` | `true` | `false` reports failures without failing the run |
 | `description` | none | Free text shown in reports |

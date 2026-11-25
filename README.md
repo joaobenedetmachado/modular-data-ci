@@ -36,6 +36,16 @@ The CLI and the GitHub Actions integration share one execution engine, so local 
 | `aggregation` | Aggregates over configurable periods, compared with operators, expected values and tolerances |
 | `freshness` | The dataset was updated within an expected time window |
 | `custom_sql` | User-defined SQL whose result is evaluated against a condition |
+| `failing_rows` | A query returns the rows breaking a rule; zero rows passes, samples go in the report |
+| `row_count` | Row count within `min`/`max` |
+| `not_null` | Listed columns have no NULLs |
+| `uniqueness` | A column or composite key has no duplicates |
+| `accepted_values` | A column only holds values from a list |
+| `value_range` | Numeric values within bounds |
+| `string_length` | Text length within bounds |
+| `pattern` | Values fully match a regular expression |
+| `referential_integrity` | Foreign keys exist in the parent table |
+| `table_comparison` | Row count or total matches between two tables |
 
 ## Usage
 
