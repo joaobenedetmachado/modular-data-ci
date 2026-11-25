@@ -314,6 +314,27 @@ The query is wrapped as a subquery, so it must not end with anything but an opti
     WHERE status = 'shipped' AND tracking_code IS NULL
 ```
 
+### `string_length`
+
+| Key | Default | Meaning |
+|---|---|---|
+| `table` | required | |
+| `column` | required | |
+| `min_length` | none | |
+| `max_length` | none | |
+| `where` | none | SQL filter |
+
+Uses the database's `LENGTH()`. NULLs are ignored.
+
+```yaml
+- name: iso_country_codes
+  module: string_length
+  table: customers
+  column: country
+  min_length: 2
+  max_length: 2
+```
+
 ## Environment variables
 
 Any string value can reference environment variables:
