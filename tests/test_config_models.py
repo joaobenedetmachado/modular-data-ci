@@ -102,3 +102,12 @@ def test_parse_duration(raw, expected):
 def test_parse_duration_rejects_invalid_values(raw):
     with pytest.raises(ValueError, match="duration"):
         parse_duration(raw)
+
+
+def test_check_tags():
+    from modular_data_ci.config.models import CheckConfig
+
+    assert CheckConfig(name="a", module="m", tags="nightly").tags == ("nightly",)
+    assert CheckConfig(name="a", module="m", tags=["x", "y.z"]).tags == ("x", "y.z")
+    with pytest.raises(ValueError, match="invalid tag"):
+        CheckConfig(name="a", module="m", tags=["has space"])

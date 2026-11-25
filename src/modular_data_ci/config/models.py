@@ -8,6 +8,7 @@ modules never require changes here.
 
 from __future__ import annotations
 
+import re
 from collections import Counter
 from typing import Annotated, Any, Literal
 
@@ -16,6 +17,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 from modular_data_ci.config.when import WhenConfig
 
 CHECK_NAME_PATTERN = r"^[A-Za-z0-9_][A-Za-z0-9_.\-]*$"
+TAG_PATTERN = r"^[A-Za-z0-9_][A-Za-z0-9_.\-]*$"
 
 
 class _StrictModel(BaseModel):
@@ -59,7 +61,18 @@ class CheckConfig(BaseModel):
     required: bool = True
     """When False, a failure is reported but does not fail the run."""
     description: str | None = None
+    tags: tuple[str, ...] = ()
+    """Free-form labels used to select checks, e.g. ``--tag nightly``."""
     when: WhenConfig | None = None
+
+    @field_validator("tags", mode="before")
+    @classmethod
+    def _tags(cls, value: Any) -> Any:
+        value = [value] if isinstance(value, str) else value
+        for tag in value or ():
+            if not isinstance(tag, str) or not re.match(TAG_PATTERN, tag):
+                raise ValueError(f"invalid tag {tag!r}; use letters, digits, '_', '-' and '.'")
+        return value
 
     @property
     def params(self) -> dict[str, Any]:
