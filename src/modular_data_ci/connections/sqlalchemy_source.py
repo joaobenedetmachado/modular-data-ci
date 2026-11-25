@@ -35,6 +35,8 @@ class SQLAlchemySource:
     def query(self, sql: str, parameters: Parameters | None = None) -> list[tuple[Any, ...]]:
         with self._conn.begin():
             result = self._conn.execute(sa.text(sql), dict(parameters or {}))
+            if not result.returns_rows:  # DDL/DML: nothing to fetch
+                return []
             return [tuple(row) for row in result]
 
     def scalar(self, sql: str, parameters: Parameters | None = None) -> Any:

@@ -126,3 +126,13 @@ def test_sqlalchemy_connection_error_hides_password():
 def test_split_identifier_rejects_invalid_names(name):
     with pytest.raises(ValueError, match="invalid table name"):
         split_identifier(name)
+
+
+def test_sqlalchemy_query_accepts_statements_without_rows(tmp_path):
+    from modular_data_ci.connections.sqlalchemy_source import SQLAlchemySource
+
+    source = SQLAlchemySource(f"sqlite:///{tmp_path / 'x.sqlite'}")
+    assert source.query("CREATE TABLE t (x INTEGER)") == []
+    assert source.query("INSERT INTO t VALUES (1)") == []
+    assert source.scalar("SELECT COUNT(*) FROM t") == 1
+    source.close()
