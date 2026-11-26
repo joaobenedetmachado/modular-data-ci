@@ -28,6 +28,7 @@ from modular_data_ci.reporting.github import (
 from modular_data_ci.reporting.junit import write_junit
 from modular_data_ci.reporting.terminal import use_color
 from modular_data_ci.results import EXIT_OK, EXIT_USAGE_ERROR
+from modular_data_ci.scaffold import starter_config
 
 DEFAULT_CONFIG_NAMES = ("modular-data-ci.yml", "modular-data-ci.yaml", ".modular-data-ci.yml")
 CONFIG_ENV_VAR = "MDCI_CONFIG"
@@ -93,6 +94,12 @@ def build_parser() -> argparse.ArgumentParser:
     listing = commands.add_parser("list", help="list the configured checks")
     _add_config_argument(listing)
 
+    init = commands.add_parser("init", help="write a starter configuration file")
+    init.add_argument("path", nargs="?", type=Path, default=Path(DEFAULT_CONFIG_NAMES[0]))
+    init.add_argument("--connection", choices=["duckdb", "sqlalchemy"], default="duckdb")
+    init.add_argument("--table", default="my_table", help="table used in the example checks")
+    init.add_argument("--force", action="store_true", help="overwrite an existing file")
+
     commands.add_parser("modules", help="list available validation modules (built-in and plugins)")
     return parser
 
@@ -112,7 +119,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.command is None:
         parser.print_help()
         return EXIT_OK
-    handlers = {"run": _run, "validate": _validate, "list": _list, "modules": _modules}
+    handlers = {
+        "run": _run,
+        "validate": _validate,
+        "list": _list,
+        "modules": _modules,
+        "init": _init,
+    }
     try:
         return handlers[args.command](args)
     except ModularDataCIError as exc:
@@ -194,6 +207,18 @@ def _modules(args: argparse.Namespace) -> int:
     for name in registry.names():
         module = registry.get(name)
         print(f"{name.ljust(width)}  {type(module).summary()}".rstrip())
+    return EXIT_OK
+
+
+def _init(args: argparse.Namespace) -> int:
+    if args.path.exists() and not args.force:
+        print(f"error: {args.path} already exists (use --force to overwrite)", file=sys.stderr)
+        return EXIT_USAGE_ERROR
+    args.path.parent.mkdir(parents=True, exist_ok=True)
+    args.path.write_text(
+        starter_config(connection_type=args.connection, table=args.table), encoding="utf-8"
+    )
+    print(f"wrote {args.path}; edit it, then run: modular-data-ci validate -c {args.path}")
     return EXIT_OK
 
 
