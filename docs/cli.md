@@ -26,6 +26,8 @@ Every command that reads a config accepts `-c/--config PATH`. Without it, the CL
 | `--skip NAME` | Leave this check out. Repeatable |
 | `--module NAME` | Run only checks of this module. Repeatable |
 | `--tag TAG` | Run only checks with this tag. Repeatable; a check needs any one of the tags |
+| `-x`, `--fail-fast` | Stop after the first required check that fails or errors; the rest are reported as `skipped` |
+| `--dry-run` | Validate and print which checks would run, without opening the data source |
 | `-v`, `-vv` | Print details of checks that did not succeed (`-vv`: of every check) |
 | `-q` | Print only failing and erroring checks, plus the totals |
 | `--color auto\|always\|never` | `auto` colors when stdout is a terminal, honours `NO_COLOR` and `FORCE_COLOR` |
