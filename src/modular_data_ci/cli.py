@@ -168,7 +168,7 @@ def _validate(args: argparse.Namespace) -> int:
 
 def _list(args: argparse.Namespace) -> int:
     config = load_config(find_config(args.config))
-    rows = [("NAME", "MODULE", "ENABLED", "REQUIRED", "DESCRIPTION")]
+    rows = [("NAME", "MODULE", "ENABLED", "REQUIRED", "TAGS", "DESCRIPTION")]
     for check in config.checks:
         enabled = check.enabled and config.module_enabled(check.module)
         rows.append(
@@ -177,13 +177,14 @@ def _list(args: argparse.Namespace) -> int:
                 check.module,
                 "yes" if enabled else "no",
                 "yes" if check.required else "no",
+                ",".join(check.tags) or "-",
                 check.description or "",
             )
         )
-    widths = [max(len(row[i]) for row in rows) for i in range(4)]
+    widths = [max(len(row[i]) for row in rows) for i in range(5)]
     for row in rows:
-        cells = [cell.ljust(width) for cell, width in zip(row[:4], widths, strict=True)]
-        print("  ".join([*cells, row[4]]).rstrip())
+        cells = [cell.ljust(width) for cell, width in zip(row[:5], widths, strict=True)]
+        print("  ".join([*cells, row[5]]).rstrip())
     return EXIT_OK
 
 
