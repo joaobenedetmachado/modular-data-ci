@@ -48,6 +48,12 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--report", type=Path, help="write a JSON report to this path")
     run.add_argument("--junit", type=Path, help="write a JUnit XML report to this path")
     run.add_argument(
+        "-x",
+        "--fail-fast",
+        action="store_true",
+        help="stop after the first required check that fails (the rest are skipped)",
+    )
+    run.add_argument(
         "--dry-run",
         action="store_true",
         help="validate and print which checks would run, without connecting",
@@ -153,6 +159,7 @@ def _run(args: argparse.Namespace) -> int:
         modules=_split(args.module),
         tags=_split(args.tag),
         config_path=str(args.config),
+        fail_fast=args.fail_fast,
     )
     color = use_color(args.color, sys.stdout)
     sys.stdout.write(

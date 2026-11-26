@@ -69,6 +69,7 @@ class Engine:
         modules: Iterable[str] = (),
         tags: Iterable[str] = (),
         config_path: str | None = None,
+        fail_fast: bool = False,
     ) -> RunReport:
         resolved = resolve_checks(config, self.registry, source=config_path or "<config>")
         plan = plan_checks(config, only=only, skip=skip, modules=modules, tags=tags)
@@ -88,8 +89,13 @@ class Engine:
 
         results: list[CheckResult] = []
         statuses: dict[str, CheckStatus] = {}
+        stopped = False
         try:
             for planned in plan:
+                if stopped:
+                    planned = PlannedCheck(
+                        planned.check, "not run: an earlier required check failed (fail fast)"
+                    )
                 result = self._run_one(
                     planned,
                     resolved[planned.check.name],
@@ -101,6 +107,7 @@ class Engine:
                 )
                 results.append(result)
                 statuses[result.name] = result.status
+                stopped = stopped or (fail_fast and result.blocking)
         finally:
             if source is not None:
                 source.close()

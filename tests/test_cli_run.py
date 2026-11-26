@@ -124,3 +124,20 @@ checks:
     assert "skip  b [custom_sql] - disabled in config" in out
     assert "run   c [custom_sql] (has when)" in out
     assert "2 of 3 selected checks would run" in out
+
+
+def test_fail_fast_skips_the_rest(project, capsys):
+    (project / "modular-data-ci.yml").write_text(
+        """
+connection: {type: duckdb, path: data.duckdb}
+checks:
+  - {name: a, module: custom_sql, sql: SELECT 1, condition: "== 2", required: false}
+  - {name: b, module: custom_sql, sql: SELECT 1, condition: "== 2"}
+  - {name: c, module: custom_sql, sql: SELECT 1, condition: "== 1"}
+"""
+    )
+    assert main(["run", "-x"]) == 1
+    out = capsys.readouterr().out
+    assert "FAIL  a" in out
+    assert "FAIL  b" in out
+    assert "SKIP  c [custom_sql] - not run: an earlier required check failed" in out
