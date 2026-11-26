@@ -47,6 +47,7 @@ Each check is a mapping. These keys are common to every module:
 | `enabled` | `true` | `false` reports the check as `skipped` |
 | `required` | `true` | `false` reports failures without failing the run |
 | `description` | none | Free text shown in reports |
+| `tags` | none | A tag or list of tags for selecting checks with `--tag` |
 | `when` | none | Execution conditions, see below |
 
 Every other key belongs to the module. See [Modules](#modules) below.
@@ -359,7 +360,7 @@ connection:
 
 The order of decisions for each check:
 
-1. CLI filters (`--only`, `--skip`, `--module`, see [cli.md](cli.md)) remove checks from the run and the report entirely. Unknown names are an error.
+1. CLI filters (`--only`, `--skip`, `--module`, `--tag`, see [cli.md](cli.md)) remove checks from the run and the report entirely. Unknown names are an error.
 2. `enabled: false` on the check, or `enabled: false` on its module, reports it as `skipped`.
 3. `when` is evaluated at run time, in file order.
 

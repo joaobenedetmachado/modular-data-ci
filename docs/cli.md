@@ -24,11 +24,12 @@ Every command that reads a config accepts `-c/--config PATH`. Without it, the CL
 | `--only NAME` | Run only this check. Repeatable, or comma separated: `--only a,b` |
 | `--skip NAME` | Leave this check out. Repeatable |
 | `--module NAME` | Run only checks of this module. Repeatable |
+| `--tag TAG` | Run only checks with this tag. Repeatable; a check needs any one of the tags |
 | `-v`, `-vv` | Print details of checks that did not succeed (`-vv`: of every check) |
 | `-q` | Print only failing and erroring checks, plus the totals |
 | `--color auto\|always\|never` | `auto` colors when stdout is a terminal, honours `NO_COLOR` and `FORCE_COLOR` |
 
-Checks left out with `--only`, `--skip` or `--module` do not appear in the report. Unknown names are an error (exit code 2).
+Checks left out with `--only`, `--skip`, `--module` or `--tag` do not appear in the report. Unknown names are an error (exit code 2).
 
 Example output:
 
