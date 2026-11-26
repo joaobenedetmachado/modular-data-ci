@@ -10,6 +10,7 @@ modular-data-ci [--version] <command> [options]
 | `validate` | Load the config and validate every check's params, without opening the data source |
 | `list` | Print the configured checks with module, enabled and required flags |
 | `modules` | List available modules, including installed plugins |
+| `init` | Write a starter config (`--connection duckdb\|sqlalchemy`, `--table NAME`, `--force`) |
 
 ## Finding the config
 

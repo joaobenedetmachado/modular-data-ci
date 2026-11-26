@@ -112,7 +112,7 @@ checks:
 
 Full reference: [docs/configuration.md](docs/configuration.md). Complete example: [examples/modular-data-ci.yml](examples/modular-data-ci.yml).
 
-Run locally:
+Start from a template with `modular-data-ci init`, then run locally:
 
 ```bash
 pip install modular-data-ci
