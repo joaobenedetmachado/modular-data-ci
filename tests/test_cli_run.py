@@ -105,3 +105,22 @@ def test_ctrl_c_exits_130(project, monkeypatch, capsys):
 
     monkeypatch.setattr(cli, "_run", interrupt)
     assert main(["run"]) == 130
+
+
+def test_dry_run_does_not_connect(tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "modular-data-ci.yml").write_text(
+        """
+connection: {type: duckdb, path: missing.duckdb}
+checks:
+  - {name: a, module: custom_sql, sql: SELECT 1, condition: "== 1"}
+  - {name: b, module: custom_sql, sql: SELECT 1, condition: "== 1", enabled: false}
+  - {name: c, module: custom_sql, sql: SELECT 1, condition: "== 1", when: {depends_on: a}}
+"""
+    )
+    assert main(["run", "--dry-run"]) == 0
+    out = capsys.readouterr().out
+    assert "run   a [custom_sql]" in out
+    assert "skip  b [custom_sql] - disabled in config" in out
+    assert "run   c [custom_sql] (has when)" in out
+    assert "2 of 3 selected checks would run" in out

@@ -15,7 +15,7 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from modular_data_ci import __version__
-from modular_data_ci.config import load_config
+from modular_data_ci.config import Config, load_config, plan_checks
 from modular_data_ci.engine import Engine
 from modular_data_ci.errors import ConfigError, ModularDataCIError
 from modular_data_ci.registry import ModuleRegistry, resolve_checks
@@ -47,6 +47,11 @@ def build_parser() -> argparse.ArgumentParser:
     _add_config_argument(run)
     run.add_argument("--report", type=Path, help="write a JSON report to this path")
     run.add_argument("--junit", type=Path, help="write a JUnit XML report to this path")
+    run.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="validate and print which checks would run, without connecting",
+    )
     run.add_argument(
         "--color",
         choices=["auto", "always", "never"],
@@ -139,6 +144,8 @@ def main(argv: Sequence[str] | None = None) -> int:
 def _run(args: argparse.Namespace) -> int:
     args.config = find_config(args.config)
     config = load_config(args.config)
+    if args.dry_run:
+        return _dry_run(args, config)
     report = Engine().run(
         config,
         only=_split(args.only),
@@ -168,6 +175,26 @@ def _run(args: argparse.Namespace) -> int:
 def _split(values: Sequence[str]) -> list[str]:
     """Accept both ``--only a --only b`` and ``--only a,b``."""
     return [part.strip() for value in values for part in value.split(",") if part.strip()]
+
+
+def _dry_run(args: argparse.Namespace, config: Config) -> int:
+    resolve_checks(config, ModuleRegistry.default(), source=str(args.config))
+    plan = plan_checks(
+        config,
+        only=_split(args.only),
+        skip=_split(args.skip),
+        modules=_split(args.module),
+        tags=_split(args.tag),
+    )
+    for planned in plan:
+        check = planned.check
+        state = "run " if planned.will_run else "skip"
+        note = f" - {planned.skip_reason}" if planned.skip_reason else ""
+        when = " (has when)" if check.when and planned.will_run else ""
+        print(f"  {state}  {check.name} [{check.module}]{when}{note}")
+    will_run = sum(1 for planned in plan if planned.will_run)
+    print(f"\n{will_run} of {len(plan)} selected checks would run (dry run, nothing executed)")
+    return EXIT_OK
 
 
 def _validate(args: argparse.Namespace) -> int:
