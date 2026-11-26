@@ -141,3 +141,11 @@ checks:
     assert "FAIL  a" in out
     assert "FAIL  b" in out
     assert "SKIP  c [custom_sql] - not run: an earlier required check failed" in out
+
+
+def test_format_json_prints_report(project, capsys, monkeypatch):
+    write_config(project / "modular-data-ci.yml", "> 10")
+    monkeypatch.setenv("GITHUB_ACTIONS", "true")
+    assert main(["run", "--format", "json"]) == 1
+    data = json.loads(capsys.readouterr().out)
+    assert data["results"][0]["name"] == "rows"

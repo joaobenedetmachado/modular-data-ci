@@ -19,7 +19,7 @@ from modular_data_ci.config import Config, load_config, plan_checks
 from modular_data_ci.engine import Engine
 from modular_data_ci.errors import ConfigError, ModularDataCIError
 from modular_data_ci.registry import ModuleRegistry, resolve_checks
-from modular_data_ci.reporting import render_terminal, write_json
+from modular_data_ci.reporting import render_json, render_terminal, write_json
 from modular_data_ci.reporting.github import (
     append_step_summary,
     in_github_actions,
@@ -57,6 +57,12 @@ def build_parser() -> argparse.ArgumentParser:
         "--dry-run",
         action="store_true",
         help="validate and print which checks would run, without connecting",
+    )
+    run.add_argument(
+        "--format",
+        choices=["text", "json"],
+        default="text",
+        help="stdout format (default: text); json prints the full report",
     )
     run.add_argument(
         "--color",
@@ -161,12 +167,16 @@ def _run(args: argparse.Namespace) -> int:
         config_path=str(args.config),
         fail_fast=args.fail_fast,
     )
-    color = use_color(args.color, sys.stdout)
-    sys.stdout.write(
-        render_terminal(report, color=color, verbosity=-1 if args.quiet else args.verbose)
-    )
+    if args.format == "json":
+        sys.stdout.write(render_json(report) + "\n")
+    else:
+        color = use_color(args.color, sys.stdout)
+        sys.stdout.write(
+            render_terminal(report, color=color, verbosity=-1 if args.quiet else args.verbose)
+        )
     if in_github_actions():
-        sys.stdout.write(render_annotations(report, str(args.config)))
+        if args.format == "text":  # keep stdout parseable in json mode
+            sys.stdout.write(render_annotations(report, str(args.config)))
         append_step_summary(report)
     try:
         if args.report:
