@@ -28,6 +28,18 @@ class DuckDBConnection(_StrictModel):
     type: Literal["duckdb"]
     path: str = ":memory:"
     read_only: bool = False
+    setup: tuple[str, ...] = ()
+    """SQL statements run once after connecting (INSTALL/LOAD, ATTACH, CREATE VIEW...)."""
+    files: dict[str, str] = Field(default_factory=dict)
+    """Views over data files: ``{orders: data/orders.parquet}``. CSV, Parquet and JSON."""
+
+    @field_validator("files")
+    @classmethod
+    def _view_names(cls, value: dict[str, str]) -> dict[str, str]:
+        for name in value:
+            if not re.match(r"^[A-Za-z_][A-Za-z0-9_]*$", name):
+                raise ValueError(f"invalid view name {name!r}")
+        return value
 
 
 class SQLAlchemyConnection(_StrictModel):

@@ -12,7 +12,14 @@ from modular_data_ci.errors import DataSourceError
 class DuckDBSource:
     dialect = "duckdb"
 
-    def __init__(self, path: str = ":memory:", *, read_only: bool = False) -> None:
+    def __init__(
+        self,
+        path: str = ":memory:",
+        *,
+        read_only: bool = False,
+        setup: tuple[str, ...] | list[str] = (),
+        files: dict[str, str] | None = None,
+    ) -> None:
         # duckdb.connect() silently creates a new empty database for a missing file,
         # which would turn a wrong path into confusing "table not found" errors.
         if path != ":memory:" and not path.startswith("md:") and not Path(path).exists():
@@ -22,6 +29,27 @@ class DuckDBSource:
         except duckdb.Error as exc:
             raise DataSourceError(f"cannot open DuckDB database {path}: {exc}") from exc
         self.path = path
+        self._prepare(setup, files or {})
+
+    def _prepare(self, setup: tuple[str, ...] | list[str], files: dict[str, str]) -> None:
+        for index, statement in enumerate(setup):
+            try:
+                self._conn.execute(statement)
+            except duckdb.Error as exc:
+                self._conn.close()
+                raise DataSourceError(f"connection.setup[{index}] failed: {exc}") from exc
+        for view, file in files.items():
+            if not any(ch in file for ch in "*?[") and not Path(file).exists():
+                self._conn.close()
+                raise DataSourceError(f"connection.files.{view}: file not found: {file}")
+            literal = "'" + file.replace("'", "''") + "'"
+            try:
+                self._conn.execute(f'CREATE OR REPLACE VIEW "{view}" AS SELECT * FROM {literal}')
+            except duckdb.Error as exc:
+                self._conn.close()
+                raise DataSourceError(
+                    f"connection.files.{view}: cannot read {file}: {exc}"
+                ) from exc
 
     @classmethod
     def from_connection(cls, connection: duckdb.DuckDBPyConnection) -> DuckDBSource:

@@ -15,7 +15,12 @@ def open_source(connection: ConnectionConfig) -> DataSource:
     if isinstance(connection, DuckDBConnection):
         from modular_data_ci.connections.duckdb_source import DuckDBSource
 
-        return DuckDBSource(connection.path, read_only=connection.read_only)
+        return DuckDBSource(
+            connection.path,
+            read_only=connection.read_only,
+            setup=connection.setup,
+            files=dict(connection.files),
+        )
     if isinstance(connection, SQLAlchemyConnection):
         from modular_data_ci.connections.sqlalchemy_source import SQLAlchemySource
 
