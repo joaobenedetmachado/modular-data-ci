@@ -1,0 +1,44 @@
+# Data quality checks on a CSV export, no database needed:
+#   modular-data-ci run -c examples/csv/modular-data-ci.yml
+version: 1
+
+connection:
+  type: duckdb
+  files:
+    products: examples/csv/products.csv
+
+checks:
+  - name: products_present
+    module: row_count
+    table: products
+    min: 1
+
+  - name: sku_unique
+    module: uniqueness
+    table: products
+    columns: [sku]
+
+  - name: sku_format
+    module: pattern
+    table: products
+    column: sku
+    regex: '[A-Z]-\d{3}'
+
+  - name: known_categories
+    module: accepted_values
+    table: products
+    column: category
+    values: [footwear, apparel, gear]
+
+  - name: sane_prices
+    module: value_range
+    table: products
+    column: price
+    min: 0
+    max: 10000
+    inclusive: false
+
+  - name: low_stock
+    module: failing_rows
+    required: false
+    sql: SELECT sku, stock FROM products WHERE stock < 5
