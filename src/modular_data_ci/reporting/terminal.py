@@ -79,7 +79,8 @@ def render_terminal(report: RunReport, *, color: bool = False, verbosity: int = 
     lines.append("")
     lines.append(
         f"{summary.total} checks: {summary.success} passed, {summary.failure} failed, "
-        f"{summary.error} errors, {summary.skipped} skipped"
+        f"{summary.error} errors, {summary.skipped} skipped "
+        f"in {report.duration_ms / 1000:.2f}s"
     )
     if report.passed:
         lines.append(style("RESULT: PASSED", f"{_BOLD};32"))

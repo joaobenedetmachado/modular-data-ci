@@ -20,6 +20,7 @@ def test_passing_run():
     text = render_terminal(report(result("a", CheckStatus.SUCCESS, message="value 1")))
     assert "PASS  a [custom_sql] - value 1" in text
     assert "1 checks: 1 passed" in text
+    assert "skipped in 0.00s" in text
     assert text.endswith("RESULT: PASSED\n")
 
 

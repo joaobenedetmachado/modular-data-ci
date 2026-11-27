@@ -114,6 +114,11 @@ class RunReport(BaseModel):
 
     @computed_field  # type: ignore[prop-decorator]
     @property
+    def duration_ms(self) -> float:
+        return round((self.finished_at - self.started_at).total_seconds() * 1000, 3)
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
     def passed(self) -> bool:
         return not any(r.blocking for r in self.results)
 

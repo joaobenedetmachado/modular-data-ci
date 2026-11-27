@@ -86,3 +86,16 @@ def test_report_json_contains_statuses_summary_and_passed():
     assert data["passed"] is False
     assert data["summary"]["failure"] == 1
     assert data["results"][0]["status"] == "failure"
+
+
+def test_run_duration():
+    from datetime import datetime, timedelta, timezone
+
+    from modular_data_ci.results import RunReport
+
+    start = datetime(2026, 1, 1, tzinfo=timezone.utc)
+    report = RunReport(
+        tool_version="1", started_at=start, finished_at=start + timedelta(seconds=1.5)
+    )
+    assert report.duration_ms == 1500.0
+    assert report.model_dump(mode="json")["duration_ms"] == 1500.0
