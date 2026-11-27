@@ -15,7 +15,7 @@ Unknown keys are rejected everywhere, so typos fail loudly instead of being igno
 
 | Type | Keys |
 |---|---|
-| `duckdb` | `path` (default `:memory:`), `read_only` (default `false`). Relative paths are relative to the working directory. A missing file is an error (DuckDB would otherwise create an empty database) |
+| `duckdb` | `path` (default `:memory:`), `read_only` (default `false`), `files`, `setup` (see below). Relative paths are relative to the working directory. A missing file is an error (DuckDB would otherwise create an empty database) |
 | `sqlalchemy` | `url` (required). Needs `pip install modular-data-ci[sqlalchemy]` plus the database driver. Passwords are hidden in connection error messages |
 
 ```yaml
@@ -23,6 +23,23 @@ connection:
   type: sqlalchemy
   url: ${DATABASE_URL}
 ```
+
+### Checking files with DuckDB
+
+`files` maps view names to CSV, Parquet or JSON files (globs such as `data/*.parquet` work), so checks can run on files without loading them into a database first. `setup` runs SQL right after connecting, e.g. to load an extension or attach another database.
+
+```yaml
+connection:
+  type: duckdb            # in-memory
+  files:
+    orders: exports/orders.csv
+    events: lake/events/*.parquet
+  setup:
+    - INSTALL httpfs
+    - LOAD httpfs
+```
+
+A missing file or a failing setup statement makes every check report `error` with the reason.
 
 ## `modules`
 
