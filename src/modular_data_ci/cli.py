@@ -16,6 +16,7 @@ from pathlib import Path
 
 from modular_data_ci import __version__
 from modular_data_ci.config import Config, load_config, plan_checks
+from modular_data_ci.config.env_file import merged_env
 from modular_data_ci.engine import Engine
 from modular_data_ci.errors import ConfigError, ModularDataCIError
 from modular_data_ci.registry import ModuleRegistry, resolve_checks
@@ -123,6 +124,14 @@ def build_parser() -> argparse.ArgumentParser:
 
 def _add_config_argument(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
+        "--env-file",
+        action="append",
+        default=[],
+        type=Path,
+        metavar="PATH",
+        help="read variables from a .env file (repeatable; real environment variables win)",
+    )
+    parser.add_argument(
         "-c",
         "--config",
         type=Path,
@@ -155,10 +164,11 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 def _run(args: argparse.Namespace) -> int:
     args.config = find_config(args.config)
-    config = load_config(args.config)
+    env = merged_env(os.environ, args.env_file)
+    config = load_config(args.config, env=env)
     if args.dry_run:
         return _dry_run(args, config)
-    report = Engine().run(
+    report = Engine(env=env).run(
         config,
         only=_split(args.only),
         skip=_split(args.skip),
@@ -216,7 +226,7 @@ def _dry_run(args: argparse.Namespace, config: Config) -> int:
 
 def _validate(args: argparse.Namespace) -> int:
     path = find_config(args.config)
-    config = load_config(path)
+    config = load_config(path, env=merged_env(os.environ, args.env_file))
     resolve_checks(config, ModuleRegistry.default(), source=str(path))
     enabled = sum(1 for check in config.checks if check.enabled)
     print(f"{path}: OK ({len(config.checks)} checks, {enabled} enabled)")
@@ -224,7 +234,7 @@ def _validate(args: argparse.Namespace) -> int:
 
 
 def _list(args: argparse.Namespace) -> int:
-    config = load_config(find_config(args.config))
+    config = load_config(find_config(args.config), env=merged_env(os.environ, args.env_file))
     rows = [("NAME", "MODULE", "ENABLED", "REQUIRED", "TAGS", "DESCRIPTION")]
     for check in config.checks:
         enabled = check.enabled and config.module_enabled(check.module)

@@ -149,3 +149,17 @@ def test_format_json_prints_report(project, capsys, monkeypatch):
     assert main(["run", "--format", "json"]) == 1
     data = json.loads(capsys.readouterr().out)
     assert data["results"][0]["name"] == "rows"
+
+
+def test_env_file(project):
+    (project / "modular-data-ci.yml").write_text(
+        """
+connection: {type: duckdb, path: "${DB_FILE}"}
+checks:
+  - {name: a, module: custom_sql, sql: SELECT COUNT(*) FROM t, condition: "== 5"}
+"""
+    )
+    (project / ".env").write_text("DB_FILE=data.duckdb\n")
+    assert main(["run"]) == 2
+    assert main(["run", "--env-file", ".env"]) == 0
+    assert main(["validate", "--env-file", ".env"]) == 0
