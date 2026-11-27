@@ -14,7 +14,7 @@ modular-data-ci [--version] <command> [options]
 
 ## Finding the config
 
-Every command that reads a config accepts `-c/--config PATH`. Without it, the CLI uses `$MDCI_CONFIG`, then the first of `modular-data-ci.yml`, `modular-data-ci.yaml`, `.modular-data-ci.yml` in the current directory.
+Every command that reads a config accepts `-c/--config PATH` and `--env-file PATH` (repeatable). Variables from env files fill in `${VAR}` references; variables already set in the environment win, so CI secrets are never replaced by a committed file. Without it, the CLI uses `$MDCI_CONFIG`, then the first of `modular-data-ci.yml`, `modular-data-ci.yaml`, `.modular-data-ci.yml` in the current directory.
 
 ## `run`
 
@@ -22,6 +22,7 @@ Every command that reads a config accepts `-c/--config PATH`. Without it, the CL
 |---|---|
 | `--report PATH` | Write the JSON report (directories are created) |
 | `--junit PATH` | Write a JUnit XML report |
+| `--format text\|json` | `json` prints the full JSON report to stdout instead of the summary (GitHub annotations are then omitted) |
 | `--only NAME` | Run only this check. Repeatable, or comma separated: `--only a,b` |
 | `--skip NAME` | Leave this check out. Repeatable |
 | `--module NAME` | Run only checks of this module. Repeatable |
